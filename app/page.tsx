@@ -18,7 +18,7 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="mb-8 relative"
+          className="mb-8 relative flex items-center gap-4"
         >
           <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-tr from-primary via-blue-400 to-success relative z-10">
             <div className="w-full h-full rounded-full overflow-hidden bg-[#050505] border-4 border-[#050505]">
@@ -27,8 +27,20 @@ export default function Home() {
                 alt="Peter Damiano"
                 width={160}
                 height={160}
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                className="w-full h-full object-cover transition-all duration-500"
                 priority
+              />
+            </div>
+          </div>
+          
+          <div className="w-24 h-24 md:w-32 md:h-32 rounded-full p-1 bg-gradient-to-tr from-purple-500 via-pink-500 to-primary relative z-10">
+            <div className="w-full h-full rounded-full overflow-hidden bg-[#050505] border-4 border-[#050505]">
+              <Image
+                src="/avatar.png"
+                alt="Peter Damiano Avatar"
+                width={128}
+                height={128}
+                className="w-full h-full object-cover transition-all duration-500"
               />
             </div>
           </div>
