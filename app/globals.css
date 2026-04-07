@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #050505;
+  --color-primary: #3B82F6;
+  --color-success: #10B981;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+}
