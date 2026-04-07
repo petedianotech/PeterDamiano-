@@ -1,8 +1,9 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
-import { ArrowRight, ExternalLink, Code, Layers, Database, Shield, CheckCircle, Globe, Terminal, Play, Gamepad2 } from 'lucide-react';
+import { ArrowRight, ExternalLink, Code, Layers, Database, Shield, CheckCircle, Globe, Terminal, Play, Gamepad2, Cpu, Waves, BatteryCharging, Bot } from 'lucide-react';
 import { motion } from 'motion/react';
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -14,9 +15,30 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-background to-background -z-10" />
         
         <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 relative"
+        >
+          <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-tr from-primary via-blue-400 to-success relative z-10">
+            <div className="w-full h-full rounded-full overflow-hidden bg-[#050505] border-4 border-[#050505]">
+              <Image
+                src="/profile.jpg"
+                alt="Peter Damiano"
+                width={160}
+                height={160}
+                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                priority
+              />
+            </div>
+          </div>
+          <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full -z-10" />
+        </motion.div>
+
+        <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
           className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass mb-8 border-success/20 bg-success/5"
         >
           <span className="w-2 h-2 rounded-full bg-success animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
@@ -179,6 +201,37 @@ export default function Home() {
             <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
               A scalable web-based puzzle and streak-tracking game demonstrating interactive UI, real-time state management, and engaging user loops.
             </p>
+          </div>
+
+          {/* System 05: Hardware & IoT */}
+          <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500 md:col-span-2">
+            <div className="flex justify-between items-start mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
+                <Cpu className="w-3 h-3 text-primary" />
+                Hardware & IoT
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold mb-4">Physical Engineering & Robotics</h3>
+            <p className="text-gray-400 text-sm leading-relaxed mb-6">
+              Bridging software and physical engineering with real-world impact systems and embedded robotics.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-grow">
+              <div className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors">
+                <Waves className="w-6 h-6 text-primary mb-3" />
+                <h4 className="font-bold text-sm mb-2">Flood Alert System</h4>
+                <p className="text-xs text-gray-400 leading-relaxed">Early warning IoT mechanism designed for rapid disaster prevention and community safety.</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors">
+                <BatteryCharging className="w-6 h-6 text-success mb-3" />
+                <h4 className="font-bold text-sm mb-2">Battery-Powered Gym</h4>
+                <p className="text-xs text-gray-400 leading-relaxed">Sustainable, energy-efficient fitness infrastructure utilizing alternative power sources.</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors">
+                <Bot className="w-6 h-6 text-purple-500 mb-3" />
+                <h4 className="font-bold text-sm mb-2">Z-Robotic Toy Car</h4>
+                <p className="text-xs text-gray-400 leading-relaxed">Custom-built robotic vehicle demonstrating embedded systems and motor control logic.</p>
+              </div>
+            </div>
           </div>
         </div>
       </motion.section>
