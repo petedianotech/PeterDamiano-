@@ -23,7 +23,7 @@ export default function Home() {
           <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-tr from-primary via-blue-400 to-success relative z-10">
             <div className="w-full h-full rounded-full overflow-hidden bg-[#050505] border-4 border-[#050505]">
               <Image
-                src="/profile.jpg"
+                src="/profile.png"
                 alt="Peter Damiano"
                 width={160}
                 height={160}
@@ -263,19 +263,26 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="glass p-8 rounded-2xl border-t-4 border-t-primary/50">
+          <div className="glass p-8 rounded-2xl border-t-4 border-t-primary/50 flex flex-col">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
               <Code className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-xl font-bold mb-4">Frontend</h3>
-            <ul className="space-y-3">
-              {['Next.js', 'React', 'HTML5', 'Tailwind CSS', 'Flutter', 'React Native + Expo'].map(item => (
-                <li key={item} className="flex items-center gap-3 text-gray-400 font-mono text-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />
-                  {item}
-                </li>
+            <h3 className="text-xl font-bold mb-6">Frontend</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { name: 'Next.js', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12c2.478 0 4.774-.753 6.678-2.039l-9.15-12.185v9.11h-1.353V6.2h1.353l9.049 12.054c1.178-1.745 1.875-3.844 1.875-6.254 0-6.627-5.373-12-12-12z"/></svg> },
+                { name: 'Angular', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#DD0031"><path d="M12 0L1.76 3.64l1.58 13.67L12 24l8.66-6.69 1.58-13.67L12 0zm0 3.32l6.82 15.11h-2.1L15.35 15.3H8.65l-1.37 3.13h-2.1L12 3.32zm0 4.67L9.43 13.2h5.14L12 7.99z"/></svg> },
+                { name: 'React', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#61DAFB"><circle cx="12" cy="12" r="2.5"/><path d="M23.2 11.5c.2-.3.2-.8-.1-1.1-1.9-2.7-5.8-5.3-10.4-6.3-4.6-1.1-9.1-.5-11.6 1.7-.3.2-.4.6-.3.9l.4 1.1c.1.3.4.5.8.4 2.1-1.6 5.8-2.2 9.5-1.4 3.7.8 6.9 3.1 8.5 5.5.2.3.6.4.9.2l1.3-.8z"/><path d="M12 2.5c-4.6 0-8.9 1.4-11.8 3.8-.4.3-.4.8-.1 1.1 1.9 2.7 5.8 5.3 10.4 6.3 4.6 1.1 9.1.5 11.6-1.7.3-.2.4-.6.3-.9l-.4-1.1c-.1-.3-.4-.5-.8-.4-2.1 1.6-5.8 2.2-9.5 1.4L11.7 6.3c-1.6-2.4-4.8-4.7-8.2-6.1C3.3.1 2.9 0 2.6.2l-1.3.8c-.3.2-.4.6-.2.9z" transform="rotate(120 12 12)"/><path d="M12 2.5c-4.6 0-8.9 1.4-11.8 3.8-.4.3-.4.8-.1 1.1 1.9 2.7 5.8 5.3 10.4 6.3 4.6 1.1 9.1.5 11.6-1.7.3-.2.4-.6.3-.9l-.4-1.1c-.1-.3-.4-.5-.8-.4-2.1 1.6-5.8 2.2-9.5 1.4L11.7 6.3c-1.6-2.4-4.8-4.7-8.2-6.1C3.3.1 2.9 0 2.6.2l-1.3.8c-.3.2-.4.6-.2.9z" transform="rotate(240 12 12)"/></svg> },
+                { name: 'Flutter', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#02569B"><path d="M14.314 0L2.3 12L6 15.7L21.684.012h-7.357zm.012 11.072L6 19.388L9.684 23.072L24 8.756l-9.674 2.316z"/></svg> },
+                { name: 'Tailwind', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#06B6D4"><path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8 1.14.3 1.96 1.134 2.85 2.11 1.47 1.61 3.16 3.465 6.15 3.465 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-1.14-.3-1.96-1.134-2.85-2.11C12.87 6.666 11.18 4.8 8.19 4.8h3.81zM6.001 12c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8 1.14.3 1.96 1.134 2.85 2.11 1.47 1.61 3.16 3.465 6.15 3.465 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-1.14-.3-1.96-1.134-2.85-2.11C12.87 13.866 11.18 12 8.19 12h3.81z"/></svg> },
+                { name: 'HTML5', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#E34F26"><path d="M1.5 0h21l-1.9 21.4-8.6 2.6-8.6-2.6L1.5 0zM19 4H5l1.2 13.4 5.8 1.8 5.8-1.8L19 4zM16.5 7.1h-8l.1 1.7h7.8l-.3 3.5-4.1 1.3-4.1-1.3-.1-1.5H6.2l.2 3.1 5.6 1.8 5.6-1.8.5-6.8z"/></svg> }
+              ].map(tech => (
+                <div key={tech.name} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:border-primary/30 transition-all group overflow-hidden">
+                  <div className="text-gray-400 group-hover:scale-110 transition-transform">{tech.icon}</div>
+                  <span className="text-[10px] font-mono text-gray-400 uppercase tracking-tighter">{tech.name}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
           <div className="glass p-8 rounded-2xl border-t-4 border-t-success/50">
@@ -284,10 +291,15 @@ export default function Home() {
             </div>
             <h3 className="text-xl font-bold mb-4">Backend</h3>
             <ul className="space-y-3">
-              {['Firebase (Firestore/Auth)', 'Node.js', 'AI Integration', 'Web Games & Puzzles'].map(item => (
-                <li key={item} className="flex items-center gap-3 text-gray-400 font-mono text-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-success/50" />
-                  {item}
+              {[
+                { name: 'Firebase', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#FFCA28"><path d="M3.89 15.67L5.26 8.71C5.31 8.44 5.4 8.21 5.51 8c.11-.21.24-.4.41-.56.17-.16.36-.29.58-.38.21-.09.46-.14.73-.14s.52.05.73.14c.22.09.41.22.58.38.17.16.3.35.41.56.11.21.21.44.25.71l1.37 6.96h-6.75zm13.15-4.81l-.85 4.81H9.42l-1.31-6.63L12 .48l7.15 6.04-2.11 4.34z"/></svg> },
+                { name: 'Node.js', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#339933"><path d="M12 24c-.2 0-.4-.1-.6-.2L1.4 18c-.4-.2-.6-.7-.6-1.2V7.2c0-.5.2-1 .6-1.2L11.4.2c.4-.2.8-.2 1.2 0l10 5.8c.4.2.6.7.6 1.2v9.6c0 .5-.2 1-.6 1.2l-10 5.8c-.2.1-.4.2-.6.2zm-9.8-7.7l8.8 5.1V12.9l-8.8-5.1v8.5zm1.6-11l8 4.6 8.2-4.7L12 1.4 3.8 5.3zm18.4 2.2l-8.8 5.1v8.5l8.8-5.1V7.5z"/></svg> },
+                { name: 'AI Integration', icon: <span className="w-1.5 h-1.5 rounded-full bg-success/50" /> },
+                { name: 'Web Games & Puzzles', icon: <span className="w-1.5 h-1.5 rounded-full bg-success/50" /> }
+              ].map(item => (
+                <li key={item.name} className="flex items-center gap-3 text-gray-400 font-mono text-sm">
+                  {item.icon}
+                  {item.name}
                 </li>
               ))}
             </ul>

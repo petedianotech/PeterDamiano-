@@ -13,6 +13,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://peterdamiano.vercel.app'), // Update with your actual domain
   title: {
     default: 'Peter Damiano | Full-Stack Developer & Innovator',
     template: '%s | Peter Damiano'
@@ -33,17 +34,31 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Peter Damiano' }],
   creator: 'Peter Damiano',
+  icons: {
+    icon: '/profile.png',
+    apple: '/profile.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
+    url: 'https://peterdamiano.vercel.app',
     title: 'Peter Damiano | Elite Full-Stack Developer & Innovator',
     description: 'Explore the portfolio of Peter Damiano. Discover high-impact projects, scalable web applications, and advanced systems architecture.',
     siteName: 'Peter Damiano Portfolio',
+    images: [
+      {
+        url: '/profile.png',
+        width: 800,
+        height: 800,
+        alt: 'Peter Damiano Portfolio',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Peter Damiano | Full-Stack Developer & Innovator',
     description: 'Explore the portfolio of Peter Damiano. Discover high-impact projects, scalable web applications, and advanced systems architecture.',
+    images: ['/profile.png'],
   },
   robots: {
     index: true,
