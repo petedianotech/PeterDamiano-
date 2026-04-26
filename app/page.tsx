@@ -1,7 +1,7 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
-import { ArrowRight, ExternalLink, Code, Layers, Database, Shield, CheckCircle, Globe, Terminal, Play, Gamepad2, Cpu, Waves, BatteryCharging, Bot } from 'lucide-react';
+import { ArrowRight, ExternalLink, Code, Layers, Database, Shield, CheckCircle, Globe, Terminal, Play, Gamepad2, Cpu, Waves, BatteryCharging, Bot, Calendar } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 
@@ -15,36 +15,26 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-background to-background -z-10" />
         
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8 relative flex items-center gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full relative rounded-2xl md:rounded-[2rem] overflow-hidden mb-12 border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.1)] group aspect-[21/9] md:aspect-[3/1]"
         >
-          <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-tr from-primary via-blue-400 to-success relative z-10">
-            <div className="w-full h-full rounded-full overflow-hidden bg-[#050505] border-4 border-[#050505]">
-              <Image
-                src="/profile.png"
-                alt="Peter Damiano"
-                width={160}
-                height={160}
-                className="w-full h-full object-cover transition-all duration-500"
-                priority
-              />
+          <Image
+            src="https://i.ibb.co/60DLrWqc/petediano-LJ.jpg"
+            alt="Peter Damiano at BICC"
+            fill
+            className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+            unoptimized
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent pointer-events-none" />
+          <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-xs font-mono text-gray-200 mb-3">
+              <Shield className="w-3 h-3 text-primary" />
+              Trusted Enterprise & Public Sector Architect
             </div>
           </div>
-          
-          <div className="w-24 h-24 md:w-32 md:h-32 rounded-full p-1 bg-gradient-to-tr from-purple-500 via-pink-500 to-primary relative z-10">
-            <div className="w-full h-full rounded-full overflow-hidden bg-[#050505] border-4 border-[#050505]">
-              <Image
-                src="/avatar.png"
-                alt="Peter Damiano Avatar"
-                width={128}
-                height={128}
-                className="w-full h-full object-cover transition-all duration-500"
-              />
-            </div>
-          </div>
-          <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full -z-10" />
         </motion.div>
 
         <motion.div 
@@ -70,10 +60,10 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-xl md:text-2xl text-gray-400 max-w-2xl mb-10 font-light leading-relaxed"
+          className="text-xl md:text-2xl text-gray-400 max-w-3xl mb-10 font-light leading-relaxed"
         >
-          Engineering Scalable Systems. <br className="hidden md:block" />
-          <span className="text-gray-200 font-medium">Innovating Digital Infrastructure.</span>
+          Engineering Scalable Systems for <span className="text-white font-medium">Enterprises, NGOs, and Government</span>. <br className="hidden md:block" />
+          <span className="text-gray-200 font-medium">Innovating Digital & Physical Infrastructure.</span>
         </motion.p>
 
         <motion.div 
@@ -172,6 +162,17 @@ export default function Home() {
                 <ExternalLink className="w-4 h-4" />
               </a>
             </div>
+            
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-6 border border-white/10 group-hover:border-primary/30 transition-colors">
+              <Image 
+                src="https://i.ibb.co/b5JQ5fG5/image-2.jpg"
+                alt="EducateMW Dashboard"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                unoptimized
+              />
+            </div>
+
             <h3 className="text-2xl font-bold mb-2">EducateMW</h3>
             <p className="text-primary font-mono text-sm mb-4">Rapid-Scale Educational Infrastructure.</p>
             <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
@@ -197,51 +198,79 @@ export default function Home() {
             </p>
           </div>
 
-          {/* System 04 */}
-          <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
-            <div className="flex justify-between items-start mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-                <Gamepad2 className="w-3 h-3 text-primary" />
-                System 04
-              </div>
-              <a href="https://streakrpro.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Visit Streakr Pro live demo" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </div>
-            <h3 className="text-2xl font-bold mb-2">Streakr Pro</h3>
-            <p className="text-primary font-mono text-sm mb-4">Scalable Web-Based Game.</p>
-            <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
-              A scalable web-based puzzle and streak-tracking game demonstrating interactive UI, real-time state management, and engaging user loops.
-            </p>
-          </div>
-
-          {/* System 05: Hardware & IoT */}
-          <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500 md:col-span-2">
-            <div className="flex justify-between items-start mb-6">
+          {/* System 05: Hardware & IoT Exhibitions */}
+          <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500 md:col-span-2 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-purple-500/5 -z-10" />
+            <div className="flex justify-between items-start mb-6 gap-4 flex-wrap">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
                 <Cpu className="w-3 h-3 text-primary" />
-                Hardware & IoT
+                Hardware & Public Innovation
+              </div>
+              <div className="px-3 py-1 rounded-full bg-success/10 border border-success/20 text-xs font-bold text-success flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                COMSTEDA22 STEM
               </div>
             </div>
-            <h3 className="text-2xl font-bold mb-4">Physical Engineering & Robotics</h3>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              Bridging software and physical engineering with real-world impact systems and embedded robotics.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-grow">
-              <div className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors">
-                <Waves className="w-6 h-6 text-primary mb-3" />
-                <h4 className="font-bold text-sm mb-2">Flood Alert System</h4>
-                <p className="text-xs text-gray-400 leading-relaxed">Early warning IoT mechanism designed for rapid disaster prevention and community safety.</p>
+            
+            <h3 className="text-2xl font-bold mb-4">Physical Engineering & Exhibitions</h3>
+            <div className="text-gray-400 text-sm leading-relaxed mb-8 flex flex-col gap-4">
+              <p>
+                At BICC, I attended the COMSTEDA22 STEM program, where we learned about innovations developed by others, including improvements to the education system for Standard 1–4 in Malawi. From the innovations we saw there, our own innovation—especially the battery-powered gym—was showcased at Mloza Secondary School in Lilongwe. This experience allowed me to connect with Innovator Innocent Mandili, who is also a winner of innovation awards in Malawi.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 flex-grow">
+              <div className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors relative group/card flex flex-col justify-between overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  <Waves className="w-6 h-6 text-primary mb-3" />
+                  <h4 className="font-bold text-sm mb-2 text-white">Flood Alert System</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed mb-4">Automated sensor using a switch mechanism to trigger an alarm and red LED visual warning during heavy rainfall to provide early alerts and save lives.</p>
+                </div>
+                <div className="flex flex-col gap-1.5 mt-2 pt-4 border-t border-white/10 relative z-10">
+                  <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
+                    <Calendar className="w-3 h-3 flex-shrink-0" />
+                    <span>6 Mar 2026 - Dzenje Sec. School</span>
+                  </div>
+                </div>
               </div>
-              <div className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors">
-                <BatteryCharging className="w-6 h-6 text-success mb-3" />
-                <h4 className="font-bold text-sm mb-2">Battery-Powered Gym</h4>
-                <p className="text-xs text-gray-400 leading-relaxed">Sustainable, energy-efficient fitness infrastructure utilizing alternative power sources.</p>
+
+              <div className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors relative group/card flex flex-col justify-between overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-success/10 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  <BatteryCharging className="w-6 h-6 text-success mb-3" />
+                  <h4 className="font-bold text-sm mb-2 text-white">Battery-Powered Gym</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed mb-4">Sustainable innovation displayed at multiple research and STEM programs, promoting clean-energy fitness infrastructure.</p>
+                </div>
+                <div className="flex flex-col gap-1.5 mt-2 pt-4 border-t border-white/10 relative z-10">
+                  <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
+                    <Calendar className="w-3 h-3 flex-shrink-0" />
+                    <span>3 Jul 2025 - Malawi Liverpool Trust</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
+                    <Calendar className="w-3 h-3 flex-shrink-0" />
+                    <span>12 Nov 2025 - BICC</span>
+                  </div>
+                </div>
               </div>
-              <div className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors">
-                <Bot className="w-6 h-6 text-purple-500 mb-3" />
-                <h4 className="font-bold text-sm mb-2">Z-Robotic Toy Car</h4>
-                <p className="text-xs text-gray-400 leading-relaxed">Custom-built robotic vehicle demonstrating embedded systems and motor control logic.</p>
+
+              <div className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors relative group/card flex flex-col justify-between overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  <Bot className="w-6 h-6 text-purple-500 mb-3" />
+                  <h4 className="font-bold text-sm mb-2 text-white">Robotic Toy Car</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed mb-4">Demonstrated during school Art Week (received a certificate of achievement) and later at World Teachers' Day exhibitions.</p>
+                </div>
+                <div className="flex flex-col gap-1.5 mt-2 pt-4 border-t border-white/10 relative z-10">
+                  <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
+                    <Calendar className="w-3 h-3 flex-shrink-0" />
+                    <span>12 Dec 2022 - Dzenje Sec. School</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
+                    <Calendar className="w-3 h-3 flex-shrink-0" />
+                    <span>Later - Mulanje Park Stadium</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -263,29 +292,45 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="glass p-8 rounded-2xl border-t-4 border-t-primary/50 flex flex-col">
+          <motion.div 
+            whileHover={{ y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="glass p-8 rounded-2xl border-t-4 border-t-primary/50 flex flex-col hover:shadow-[0_8px_30px_rgba(59,130,246,0.15)] transition-shadow"
+          >
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
               <Code className="w-6 h-6 text-primary" />
             </div>
             <h3 className="text-xl font-bold mb-6">Frontend</h3>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { name: 'Next.js', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12c2.478 0 4.774-.753 6.678-2.039l-9.15-12.185v9.11h-1.353V6.2h1.353l9.049 12.054c1.178-1.745 1.875-3.844 1.875-6.254 0-6.627-5.373-12-12-12z"/></svg> },
-                { name: 'Angular', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#DD0031"><path d="M12 0L1.76 3.64l1.58 13.67L12 24l8.66-6.69 1.58-13.67L12 0zm0 3.32l6.82 15.11h-2.1L15.35 15.3H8.65l-1.37 3.13h-2.1L12 3.32zm0 4.67L9.43 13.2h5.14L12 7.99z"/></svg> },
-                { name: 'React', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#61DAFB"><circle cx="12" cy="12" r="2.5"/><path d="M23.2 11.5c.2-.3.2-.8-.1-1.1-1.9-2.7-5.8-5.3-10.4-6.3-4.6-1.1-9.1-.5-11.6 1.7-.3.2-.4.6-.3.9l.4 1.1c.1.3.4.5.8.4 2.1-1.6 5.8-2.2 9.5-1.4 3.7.8 6.9 3.1 8.5 5.5.2.3.6.4.9.2l1.3-.8z"/><path d="M12 2.5c-4.6 0-8.9 1.4-11.8 3.8-.4.3-.4.8-.1 1.1 1.9 2.7 5.8 5.3 10.4 6.3 4.6 1.1 9.1.5 11.6-1.7.3-.2.4-.6.3-.9l-.4-1.1c-.1-.3-.4-.5-.8-.4-2.1 1.6-5.8 2.2-9.5 1.4L11.7 6.3c-1.6-2.4-4.8-4.7-8.2-6.1C3.3.1 2.9 0 2.6.2l-1.3.8c-.3.2-.4.6-.2.9z" transform="rotate(120 12 12)"/><path d="M12 2.5c-4.6 0-8.9 1.4-11.8 3.8-.4.3-.4.8-.1 1.1 1.9 2.7 5.8 5.3 10.4 6.3 4.6 1.1 9.1.5 11.6-1.7.3-.2.4-.6.3-.9l-.4-1.1c-.1-.3-.4-.5-.8-.4-2.1 1.6-5.8 2.2-9.5 1.4L11.7 6.3c-1.6-2.4-4.8-4.7-8.2-6.1C3.3.1 2.9 0 2.6.2l-1.3.8c-.3.2-.4.6-.2.9z" transform="rotate(240 12 12)"/></svg> },
-                { name: 'Flutter', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#02569B"><path d="M14.314 0L2.3 12L6 15.7L21.684.012h-7.357zm.012 11.072L6 19.388L9.684 23.072L24 8.756l-9.674 2.316z"/></svg> },
-                { name: 'Tailwind', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#06B6D4"><path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8 1.14.3 1.96 1.134 2.85 2.11 1.47 1.61 3.16 3.465 6.15 3.465 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-1.14-.3-1.96-1.134-2.85-2.11C12.87 6.666 11.18 4.8 8.19 4.8h3.81zM6.001 12c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8 1.14.3 1.96 1.134 2.85 2.11 1.47 1.61 3.16 3.465 6.15 3.465 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-1.14-.3-1.96-1.134-2.85-2.11C12.87 13.866 11.18 12 8.19 12h3.81z"/></svg> },
-                { name: 'HTML5', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#E34F26"><path d="M1.5 0h21l-1.9 21.4-8.6 2.6-8.6-2.6L1.5 0zM19 4H5l1.2 13.4 5.8 1.8 5.8-1.8L19 4zM16.5 7.1h-8l.1 1.7h7.8l-.3 3.5-4.1 1.3-4.1-1.3-.1-1.5H6.2l.2 3.1 5.6 1.8 5.6-1.8.5-6.8z"/></svg> }
-              ].map(tech => (
-                <div key={tech.name} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 hover:border-primary/30 transition-all group overflow-hidden">
-                  <div className="text-gray-400 group-hover:scale-110 transition-transform">{tech.icon}</div>
-                  <span className="text-[10px] font-mono text-gray-400 uppercase tracking-tighter">{tech.name}</span>
-                </div>
+                { name: 'Next.js', color: 'hover:border-white hover:bg-white/5', icon: <svg className="w-5 h-5 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12c2.478 0 4.774-.753 6.678-2.039l-9.15-12.185v9.11h-1.353V6.2h1.353l9.049 12.054c1.178-1.745 1.875-3.844 1.875-6.254 0-6.627-5.373-12-12-12z"/></svg> },
+                { name: 'Angular', color: 'hover:border-[#DD0031] hover:bg-[#DD0031]/10', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#DD0031"><path d="M12 0L1.76 3.64l1.58 13.67L12 24l8.66-6.69 1.58-13.67L12 0zm0 3.32l6.82 15.11h-2.1L15.35 15.3H8.65l-1.37 3.13h-2.1L12 3.32zm0 4.67L9.43 13.2h5.14L12 7.99z"/></svg> },
+                { name: 'React', color: 'hover:border-[#61DAFB] hover:bg-[#61DAFB]/10', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#61DAFB"><circle cx="12" cy="12" r="2.5"/><path d="M23.2 11.5c.2-.3.2-.8-.1-1.1-1.9-2.7-5.8-5.3-10.4-6.3-4.6-1.1-9.1-.5-11.6 1.7-.3.2-.4.6-.3.9l.4 1.1c.1.3.4.5.8.4 2.1-1.6 5.8-2.2 9.5-1.4 3.7.8 6.9 3.1 8.5 5.5.2.3.6.4.9.2l1.3-.8z"/><path d="M12 2.5c-4.6 0-8.9 1.4-11.8 3.8-.4.3-.4.8-.1 1.1 1.9 2.7 5.8 5.3 10.4 6.3 4.6 1.1 9.1.5 11.6-1.7.3-.2.4-.6.3-.9l-.4-1.1c-.1-.3-.4-.5-.8-.4-2.1 1.6-5.8 2.2-9.5 1.4L11.7 6.3c-1.6-2.4-4.8-4.7-8.2-6.1C3.3.1 2.9 0 2.6.2l-1.3.8c-.3.2-.4.6-.2.9z" transform="rotate(120 12 12)"/><path d="M12 2.5c-4.6 0-8.9 1.4-11.8 3.8-.4.3-.4.8-.1 1.1 1.9 2.7 5.8 5.3 10.4 6.3 4.6 1.1 9.1.5 11.6-1.7.3-.2.4-.6.3-.9l-.4-1.1c-.1-.3-.4-.5-.8-.4-2.1 1.6-5.8 2.2-9.5 1.4L11.7 6.3c-1.6-2.4-4.8-4.7-8.2-6.1C3.3.1 2.9 0 2.6.2l-1.3.8c-.3.2-.4.6-.2.9z" transform="rotate(240 12 12)"/></svg> },
+                { name: 'Flutter', color: 'hover:border-[#02569B] hover:bg-[#02569B]/10', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#02569B"><path d="M14.314 0L2.3 12L6 15.7L21.684.012h-7.357zm.012 11.072L6 19.388L9.684 23.072L24 8.756l-9.674 2.316z"/></svg> },
+                { name: 'Tailwind', color: 'hover:border-[#06B6D4] hover:bg-[#06B6D4]/10', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#06B6D4"><path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8 1.14.3 1.96 1.134 2.85 2.11 1.47 1.61 3.16 3.465 6.15 3.465 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-1.14-.3-1.96-1.134-2.85-2.11C12.87 6.666 11.18 4.8 8.19 4.8h3.81zM6.001 12c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8 1.14.3 1.96 1.134 2.85 2.11 1.47 1.61 3.16 3.465 6.15 3.465 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-1.14-.3-1.96-1.134-2.85-2.11C12.87 13.866 11.18 12 8.19 12h3.81z"/></svg> },
+                { name: 'HTML5', color: 'hover:border-[#E34F26] hover:bg-[#E34F26]/10', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#E34F26"><path d="M1.5 0h21l-1.9 21.4-8.6 2.6-8.6-2.6L1.5 0zM19 4H5l1.2 13.4 5.8 1.8 5.8-1.8L19 4zM16.5 7.1h-8l.1 1.7h7.8l-.3 3.5-4.1 1.3-4.1-1.3-.1-1.5H6.2l.2 3.1 5.6 1.8 5.6-1.8.5-6.8z"/></svg> }
+              ].map((tech, i) => (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, type: "spring", stiffness: 200 }}
+                  whileHover={{ y: -5, scale: 1.05 }}
+                  key={tech.name} 
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 transition-all duration-300 group overflow-hidden cursor-pointer ${tech.color}`}
+                >
+                  <div className="text-gray-400 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">{tech.icon}</div>
+                  <span className="text-[10px] font-mono text-gray-400 group-hover:text-white transition-colors uppercase tracking-tighter">{tech.name}</span>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="glass p-8 rounded-2xl border-t-4 border-t-success/50">
+          <motion.div 
+            whileHover={{ y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="glass p-8 rounded-2xl border-t-4 border-t-success/50 hover:shadow-[0_8px_30px_rgba(16,185,129,0.15)] transition-shadow"
+          >
             <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center mb-6">
               <Database className="w-6 h-6 text-success" />
             </div>
@@ -294,31 +339,49 @@ export default function Home() {
               {[
                 { name: 'Firebase', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#FFCA28"><path d="M3.89 15.67L5.26 8.71C5.31 8.44 5.4 8.21 5.51 8c.11-.21.24-.4.41-.56.17-.16.36-.29.58-.38.21-.09.46-.14.73-.14s.52.05.73.14c.22.09.41.22.58.38.17.16.3.35.41.56.11.21.21.44.25.71l1.37 6.96h-6.75zm13.15-4.81l-.85 4.81H9.42l-1.31-6.63L12 .48l7.15 6.04-2.11 4.34z"/></svg> },
                 { name: 'Node.js', icon: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#339933"><path d="M12 24c-.2 0-.4-.1-.6-.2L1.4 18c-.4-.2-.6-.7-.6-1.2V7.2c0-.5.2-1 .6-1.2L11.4.2c.4-.2.8-.2 1.2 0l10 5.8c.4.2.6.7.6 1.2v9.6c0 .5-.2 1-.6 1.2l-10 5.8c-.2.1-.4.2-.6.2zm-9.8-7.7l8.8 5.1V12.9l-8.8-5.1v8.5zm1.6-11l8 4.6 8.2-4.7L12 1.4 3.8 5.3zm18.4 2.2l-8.8 5.1v8.5l8.8-5.1V7.5z"/></svg> },
-                { name: 'AI Integration', icon: <span className="w-1.5 h-1.5 rounded-full bg-success/50" /> },
-                { name: 'Web Games & Puzzles', icon: <span className="w-1.5 h-1.5 rounded-full bg-success/50" /> }
-              ].map(item => (
-                <li key={item.name} className="flex items-center gap-3 text-gray-400 font-mono text-sm">
-                  {item.icon}
+                { name: 'AI Integration', icon: <span className="w-1.5 h-1.5 rounded-full bg-success/50 group-hover:bg-success transition-colors" /> },
+                { name: 'Web Games & Puzzles', icon: <span className="w-1.5 h-1.5 rounded-full bg-success/50 group-hover:bg-success transition-colors" /> }
+              ].map((item, i) => (
+                <motion.li 
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ x: 6, color: '#10B981' }}
+                  key={item.name} 
+                  className="flex items-center gap-3 text-gray-400 font-mono text-sm cursor-default group transition-colors"
+                >
+                  <motion.div whileHover={{ scale: 1.2, rotate: 5 }}>{item.icon}</motion.div>
                   {item.name}
-                </li>
+                </motion.li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          <div className="glass p-8 rounded-2xl border-t-4 border-t-purple-500/50">
+          <motion.div 
+            whileHover={{ y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="glass p-8 rounded-2xl border-t-4 border-t-purple-500/50 hover:shadow-[0_8px_30px_rgba(168,85,247,0.15)] transition-shadow"
+          >
             <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6">
               <Shield className="w-6 h-6 text-purple-500" />
             </div>
             <h3 className="text-xl font-bold mb-4">Architecture</h3>
             <ul className="space-y-3">
-              {['Systems Design', 'Scalable Database Optimization', 'Secure Authentication', 'API Integration'].map(item => (
-                <li key={item} className="flex items-center gap-3 text-gray-400 font-mono text-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500/50" />
+              {['Systems Design', 'Scalable Database Optimization', 'Secure Authentication', 'API Integration'].map((item, i) => (
+                <motion.li 
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ x: 6, color: '#A855F7' }}
+                  key={item} 
+                  className="flex items-center gap-3 text-gray-400 font-mono text-sm cursor-default group transition-colors"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500/50 group-hover:bg-purple-500 transition-colors" />
                   {item}
-                </li>
+                </motion.li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         </div>
       </motion.section>
 
@@ -496,6 +559,13 @@ export default function Home() {
               <div className="flex items-start gap-2">
                 <span className="text-success">root@peterdamiano:~#</span>
                 <span className="text-white">fetch --contact</span>
+              </div>
+              
+              <div className="pl-4 pb-4 border-b border-white/5 mb-4 flex items-center gap-4">
+                <div>
+                   <div className="text-white font-bold tracking-tight">Peter Damiano</div>
+                   <div className="text-gray-400 text-xs mt-1">Systems Architect • Open for Consultation</div>
+                </div>
               </div>
               
               <div className="pl-4 space-y-2 text-gray-300">

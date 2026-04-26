@@ -35,8 +35,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'Peter Damiano' }],
   creator: 'Peter Damiano',
   icons: {
-    icon: '/profile.png',
-    apple: '/profile.png',
+    icon: 'https://i.ibb.co/60DLrWqc/petediano-LJ.jpg',
+    apple: 'https://i.ibb.co/60DLrWqc/petediano-LJ.jpg',
   },
   openGraph: {
     type: 'website',
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     siteName: 'Peter Damiano Portfolio',
     images: [
       {
-        url: '/profile.png',
+        url: 'https://i.ibb.co/60DLrWqc/petediano-LJ.jpg',
         width: 800,
         height: 800,
         alt: 'Peter Damiano Portfolio',
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Peter Damiano | Full-Stack Developer & Innovator',
     description: 'Explore the portfolio of Peter Damiano. Discover high-impact projects, scalable web applications, and advanced systems architecture.',
-    images: ['/profile.png'],
+    images: ['https://i.ibb.co/60DLrWqc/petediano-LJ.jpg'],
   },
   robots: {
     index: true,

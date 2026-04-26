@@ -34,11 +34,12 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-3 text-xl font-bold tracking-tighter text-white group">
           <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 group-hover:border-primary/50 transition-colors">
             <Image 
-              src="/profile.png" 
+              src="https://i.ibb.co/60DLrWqc/petediano-LJ.jpg" 
               alt="Logo" 
               width={32} 
               height={32} 
               className="w-full h-full object-cover"
+              unoptimized
             />
           </div>
           <span>
