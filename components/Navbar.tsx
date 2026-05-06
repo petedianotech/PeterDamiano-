@@ -119,7 +119,7 @@ export default function Navbar() {
 
           <div className="mt-auto">
             <a
-              href="https://wa.me/265987966051"
+              href="https://wa.me/265987066051"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-3 bg-[#25D366] text-white px-6 py-4 rounded-xl font-bold shadow-[0_0_20px_rgba(37,211,102,0.2)]"

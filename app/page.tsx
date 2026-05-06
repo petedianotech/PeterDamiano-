@@ -1,7 +1,7 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
-import { ArrowRight, ExternalLink, Code, Layers, Database, Shield, CheckCircle, Globe, Terminal, Play, Gamepad2, Cpu, Waves, BatteryCharging, Bot, Calendar } from 'lucide-react';
+import { ArrowRight, ExternalLink, Code, Layers, Database, Shield, CheckCircle, Globe, Terminal, Play, Gamepad2, Cpu, Waves, BatteryCharging, Bot, Calendar, Smartphone } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 
@@ -15,23 +15,24 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-background to-background -z-10" />
         
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full relative rounded-2xl md:rounded-[2rem] overflow-hidden mb-12 border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.1)] group aspect-[21/9] md:aspect-[3/1]"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="w-full relative rounded-2xl md:rounded-[2rem] overflow-hidden mb-12 border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.1)] group aspect-[4/3] md:aspect-[21/9]"
         >
           <Image
             src="https://i.ibb.co/60DLrWqc/petediano-LJ.jpg"
             alt="Peter Damiano at BICC"
             fill
-            className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+            className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
             unoptimized
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent pointer-events-none" />
-          <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-xs font-mono text-gray-200 mb-3">
-              <Shield className="w-3 h-3 text-primary" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent pointer-events-none" />
+          <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 z-10 flex flex-col items-end">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-[10px] md:text-sm font-mono text-gray-200">
+              <Shield className="w-3 h-3 md:w-4 md:h-4 text-primary" />
               Trusted Enterprise & Public Sector Architect
             </div>
           </div>
@@ -39,7 +40,8 @@ export default function Home() {
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.05 }}
           className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass mb-8 border-success/20 bg-success/5"
         >
@@ -49,7 +51,8 @@ export default function Home() {
 
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tighter text-white mb-6 leading-[1.1]"
         >
@@ -58,7 +61,8 @@ export default function Home() {
         
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-xl md:text-2xl text-gray-400 max-w-3xl mb-10 font-light leading-relaxed"
         >
@@ -68,12 +72,13 @@ export default function Home() {
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="flex flex-col sm:flex-row flex-wrap gap-4 w-full"
         >
           <a
-            href="https://wa.me/265987966051"
+            href="https://wa.me/265987066051"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-8 py-4 rounded-lg font-medium transition-all duration-300 group"
@@ -198,7 +203,43 @@ export default function Home() {
             </p>
           </div>
 
-          {/* System 05: Hardware & IoT Exhibitions */}
+          {/* System 04 */}
+          <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
+            <div className="flex justify-between items-start mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
+                <CheckCircle className="w-3 h-3 text-primary" />
+                System 04
+              </div>
+              <a href="https://aitact.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Visit AI Tact live demo" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+            <h3 className="text-2xl font-bold mb-2">AI Tact</h3>
+            <p className="text-primary font-mono text-sm mb-4">High-Stakes Message Auditor.</p>
+            <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
+              High-converting single-page Web App for auditing high-stakes messages using AI.
+            </p>
+          </div>
+
+          {/* System 05 */}
+          <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
+            <div className="flex justify-between items-start mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
+                <Bot className="w-3 h-3 text-primary" />
+                System 05
+              </div>
+              <div className="px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-xs font-bold text-yellow-500 flex items-center gap-2">
+                Restricted (Under Dev)
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold mb-2">TrendBrainAI</h3>
+            <p className="text-primary font-mono text-sm mb-4">Social Media Autopilot.</p>
+            <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
+              An AI-powered social media autopilot that scans global trends and automatically writes daily posts.
+            </p>
+          </div>
+
+          {/* System 06: Hardware & IoT Exhibitions */}
           <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500 md:col-span-2 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-purple-500/5 -z-10" />
             <div className="flex justify-between items-start mb-6 gap-4 flex-wrap">
@@ -291,7 +332,7 @@ export default function Home() {
           <p className="text-gray-400 font-mono text-sm uppercase tracking-widest">Core Technical Stack</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <motion.div 
             whileHover={{ y: -8 }}
             transition={{ duration: 0.3 }}
@@ -382,6 +423,38 @@ export default function Home() {
               ))}
             </ul>
           </motion.div>
+
+          <motion.div 
+            whileHover={{ y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="glass p-8 rounded-2xl border-t-4 border-t-blue-500/50 flex flex-col hover:shadow-[0_8px_30px_rgba(59,130,246,0.15)] transition-shadow"
+          >
+            <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6">
+              <Smartphone className="w-6 h-6 text-blue-500" />
+            </div>
+            <h3 className="text-xl font-bold mb-6">Mobile Apps</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                  { name: 'C++', color: 'hover:border-[#00599C] hover:bg-[#00599C]/10', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#00599C"><path d="M22.25 10.33c.89 0 1.5.6 1.5 1.5v.34c0 .9-.6 1.5-1.5 1.5h-1.66v1.65c0 .9-.6 1.5-1.5 1.5h-.34c-.9 0-1.5-.6-1.5-1.5v-1.65h-1.66c-.9 0-1.5-.6-1.5-1.5v-.34c0-.9.6-1.5 1.5-1.5h1.66v-1.66c0-.9.6-1.5 1.5-1.5h.34c.9 0 1.5.6 1.5 1.5v1.66h1.66zM12.98 10.33c.9 0 1.5.6 1.5 1.5v.34c0 .9-.6 1.5-1.5 1.5h-1.66v1.65c0 .9-.6 1.5-1.5 1.5h-.34c-.9 0-1.5-.6-1.5-1.5v-1.65H6.32c-.9 0-1.5-.6-1.5-1.5v-.34c0-.9.6-1.5 1.5-1.5h1.66v-1.66c0-.9.6-1.5 1.5-1.5h.34c.9 0 1.5.6 1.5 1.5v1.66h1.66zM4.14 7.6C2.39 9.35 1.5 11.23 1.5 13.5S2.39 17.65 4.14 19.4C5.89 21.15 7.78 22 10.05 22s4.16-.85 5.9-2.6L12.7 16.14c-1.07.9-2 1.25-3.04 1.25-2.03 0-3.3-1.28-3.3-3.32s1.28-3.34 3.3-3.34c1.05 0 1.98.35 3.05 1.24l3.24-3.23c-1.74-1.76-3.63-2.62-5.9-2.62s-4.16.85-5.9 2.6z"/></svg> },
+                  { name: 'Flutter', color: 'hover:border-[#02569B] hover:bg-[#02569B]/10', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#02569B"><path d="M14.314 0L2.3 12L6 15.7L21.684.012h-7.357zm.012 11.072L6 19.388L9.684 23.072L24 8.756l-9.674 2.316z"/></svg> },
+                  { name: 'Python', color: 'hover:border-[#3776AB] hover:bg-[#3776AB]/10', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#3776AB"><path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.02.13-.08.06-.17.03-.3.02h-.4l-.56-.02-.73-.04-.9-.04-1.1-.02-1.3 0h-1.5l-1.5.02-1.3.04-1.1.06-.9.08-.73.1-.56.13-.42.16-.27.2-.13.23-.02.26.13.3.3.32.48.3.69.28.9.23 1.15.18 1.4.12 1.68.08 2 .02 2.25-.04 2.4-.1 2.3-.2 2.1-.3 1.7-.4 1.2-.5.8-.6.3-.7-.1-.9-.6-1-1.3-1-2.2-.8-3.3-.6-4.5-.4-5.8-.2-7.2 0-8.6.3-9.5.6-10.1 1-10.4 1.4-10.1 1.9-9.5 2.5-8.4 3.2-6.8 4-4.8 4.9-2.2 5.9 0 7.1 2.4 8.3 5 9.4 7.8 10.3 10.8 11.1 13.9 11.8 17.2 12.4 20.6 13 24 13.5v-10h-2.5v1h-5v-1h-5v1h-5v-1h-5v1h-3.6l-.3-1-.2-1.2-.07-1.4.03-1.6.17-1.8.35-1.9.6-1.9.9-1.9 1.3-1.8 1.8-1.5 2.4-1.1 3.1-.6 4-.2h14.4l4 .2 3.1.6 2.4 1.1 1.8 1.5 1.3 1.8.9 1.9.6 1.9.35 1.9.17 1.8.03 1.6-.07 1.4-.2 1.2-.3 1zM25.5 27.2c-.6 0-1.1.2-1.5.5s-.6.8-.6 1.4.2 1.1.6 1.4 1 .5 1.5.5 1.1-.2 1.5-.5.6-.8.6-1.4-.2-1.1-.6-1.4-1-.5-1.5-.5z"/></svg> },
+                  { name: 'Kotlin', color: 'hover:border-[#7F52FF] hover:bg-[#7F52FF]/10', icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#7F52FF"><path d="M24 24H0V0h24L12 12Z"/></svg> }
+              ].map((tech, i) => (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, type: "spring", stiffness: 200 }}
+                  whileHover={{ y: -5, scale: 1.05 }}
+                  key={tech.name} 
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 transition-all duration-300 group overflow-hidden cursor-pointer ${tech.color}`}
+                >
+                  <div className="text-gray-400 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">{tech.icon}</div>
+                  <span className="text-[10px] font-mono text-gray-400 group-hover:text-white transition-colors uppercase tracking-tighter">{tech.name}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </motion.section>
 
@@ -469,7 +542,7 @@ export default function Home() {
               ))}
             </ul>
             <a
-              href="https://wa.me/265987966051"
+              href="https://wa.me/265987066051"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-4 rounded-xl glass hover:bg-white/10 text-center font-medium transition-colors"
@@ -498,7 +571,7 @@ export default function Home() {
               ))}
             </ul>
             <a
-              href="https://wa.me/265987966051"
+              href="https://wa.me/265987066051"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-4 rounded-xl bg-primary hover:bg-blue-600 text-white text-center font-medium transition-colors shadow-[0_0_20px_rgba(59,130,246,0.4)]"
@@ -575,7 +648,7 @@ export default function Home() {
                 </div>
                 <div className="flex gap-4">
                   <span className="text-primary w-20">WhatsApp:</span>
-                  <a href="https://wa.me/265987966051" target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline">+265 98 796 6051</a>
+                  <a href="https://wa.me/265987066051" target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline">+265 98 706 6051</a>
                 </div>
                 <div className="flex gap-4 items-center mt-4 pt-4 border-t border-white/5">
                   <span className="text-primary w-20">Status:</span>
