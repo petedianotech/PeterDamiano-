@@ -1,7 +1,7 @@
 'use client';
 
 import Navbar from '@/components/Navbar';
-import { ArrowRight, ExternalLink, Code, Layers, Database, Shield, CheckCircle, Globe, Terminal, Play, Gamepad2, Cpu, Waves, BatteryCharging, Bot, Calendar, Smartphone } from 'lucide-react';
+import { ArrowRight, ExternalLink, Code, Layers, Database, Shield, CheckCircle, Globe, Terminal, Play, Gamepad2, Cpu, Waves, BatteryCharging, Bot, Calendar, Smartphone, BookOpen, Music } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 
@@ -228,6 +228,60 @@ export default function Home() {
                 <Bot className="w-3 h-3 text-primary" />
                 System 05
               </div>
+              <a href="https://otocreater.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Visit Oto Creator live demo" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+            <h3 className="text-2xl font-bold mb-2">Oto Creator</h3>
+            <p className="text-primary font-mono text-sm mb-4">Cross-Platform Content Synthesizer.</p>
+            <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
+              Advanced AI tool that instantly transforms a single prompt into highly optimized, native-formatted content for 12+ social platforms (X, LinkedIn, TikTok, Instagram) with customized brand voice matching.
+            </p>
+          </div>
+
+          {/* System 06 */}
+          <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
+            <div className="flex justify-between items-start mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
+                <BookOpen className="w-3 h-3 text-primary" />
+                System 06
+              </div>
+              <a href="https://oinone.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Visit OINONE live demo" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+            <h3 className="text-2xl font-bold mb-2">OINONE</h3>
+            <p className="text-primary font-mono text-sm mb-4">Digital Monetization & Resource Directory.</p>
+            <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
+              A comprehensive monetization-focused blogging platform, side-hustle directory, and AI resource index outlining innovative digital tools, cash-back programs, and online earning pathways.
+            </p>
+          </div>
+
+          {/* System 07 */}
+          <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
+            <div className="flex justify-between items-start mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
+                <Music className="w-3 h-3 text-primary" />
+                System 07
+              </div>
+              <a href="https://github.com/PetedianoTech" target="_blank" rel="noopener noreferrer" aria-label="Visit SoundBox Android Music Player on GitHub" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+            <h3 className="text-2xl font-bold mb-2">SoundBox</h3>
+            <p className="text-primary font-mono text-sm mb-4">Offline Android Music Player.</p>
+            <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
+              A high-fidelity offline Android player architected for seamless background reproduction, smooth media session integrations, caching, and secure audio file parsing. Available open-source.
+            </p>
+          </div>
+
+          {/* System 08 */}
+          <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
+            <div className="flex justify-between items-start mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
+                <Bot className="w-3 h-3 text-primary" />
+                System 08
+              </div>
               <div className="px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-xs font-bold text-yellow-500 flex items-center gap-2">
                 Restricted (Under Dev)
               </div>
@@ -239,7 +293,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* System 06: Hardware & IoT Exhibitions */}
+          {/* System 09: Hardware & IoT Exhibitions */}
           <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500 md:col-span-2 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-purple-500/5 -z-10" />
             <div className="flex justify-between items-start mb-6 gap-4 flex-wrap">
@@ -300,7 +354,7 @@ export default function Home() {
                 <div className="relative z-10">
                   <Bot className="w-6 h-6 text-purple-500 mb-3" />
                   <h4 className="font-bold text-sm mb-2 text-white">Robotic Toy Car</h4>
-                  <p className="text-xs text-gray-400 leading-relaxed mb-4">Demonstrated during school Art Week (received a certificate of achievement) and later at World Teachers' Day exhibitions.</p>
+                  <p className="text-xs text-gray-400 leading-relaxed mb-4">Demonstrated during school Art Week (received a certificate of achievement) and later at World Teachers&apos; Day exhibitions.</p>
                 </div>
                 <div className="flex flex-col gap-1.5 mt-2 pt-4 border-t border-white/10 relative z-10">
                   <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
