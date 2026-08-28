@@ -135,22 +135,22 @@ export default function Home() {
           <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
             <div className="flex justify-between items-start mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-                <Code className="w-3 h-3 text-primary" />
+                <Waves className="w-3 h-3 text-primary" />
                 System 01
               </div>
-              <a href="https://globlync.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Visit Globlync live demo" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
+              <a href="https://automatic-flood-alert-app.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Visit Automatic Flood Alert App live demo" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
                 <ExternalLink className="w-4 h-4" />
               </a>
             </div>
-            <h3 className="text-2xl font-bold mb-2">Globlync</h3>
-            <p className="text-primary font-mono text-sm mb-4">Verifiable Professional Identity Engine.</p>
-            <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
-              A national directory and reputation platform bridging the trust gap. Features AI-integrated job logging and evidence-based professional verification.
+            <h3 className="text-2xl font-bold mb-2">Automatic Flood Alert System</h3>
+            <p className="text-primary font-mono text-sm mb-4">4-Way Early Warning & Community Safety App.</p>
+            <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-grow">
+              An automated emergency warning system connected with a dedicated web and mobile app. It protects communities during heavy rainfall and rising floodwaters using 4 alert methods: SMS messages to phones, loud app notifications, a physical siren alarm, and flashing red LED lights.
             </p>
             <div className="flex flex-wrap gap-2 mt-auto">
-              {['Next.js', 'Firebase', 'AI Integration'].map(tech => (
-                <span key={tech} className="text-xs font-mono px-2 py-1 rounded bg-white/5 text-gray-300 border border-white/5">
-                  {tech}
+              {['Connected App', 'SMS Alerts', 'Loud App Alarm', 'Physical Siren', 'Red LEDs', 'Auto Sensor'].map(feature => (
+                <span key={feature} className="text-xs font-mono px-2.5 py-1 rounded bg-white/5 text-gray-300 border border-white/5">
+                  {feature}
                 </span>
               ))}
             </div>
@@ -189,26 +189,8 @@ export default function Home() {
           <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
             <div className="flex justify-between items-start mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-                <Terminal className="w-3 h-3 text-primary" />
-                System 03
-              </div>
-              <a href="https://omaxtool.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Visit OmaxTool live demo" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </div>
-            <h3 className="text-2xl font-bold mb-2">OmaxTool</h3>
-            <p className="text-primary font-mono text-sm mb-4">Utility-First Productivity Suite.</p>
-            <p className="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
-              Everyday solver application focusing on streamlined UX and high-utility tools. Built for performance and immediate user value.
-            </p>
-          </div>
-
-          {/* System 04 */}
-          <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
-            <div className="flex justify-between items-start mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
                 <CheckCircle className="w-3 h-3 text-primary" />
-                System 04
+                System 03
               </div>
               <a href="https://aitact.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Visit AI Tact live demo" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
                 <ExternalLink className="w-4 h-4" />
@@ -221,12 +203,12 @@ export default function Home() {
             </p>
           </div>
 
-          {/* System 05 */}
+          {/* System 04 */}
           <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
             <div className="flex justify-between items-start mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
                 <Bot className="w-3 h-3 text-primary" />
-                System 05
+                System 04
               </div>
               <a href="https://otocreater.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Visit Oto Creator live demo" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
                 <ExternalLink className="w-4 h-4" />
@@ -239,12 +221,12 @@ export default function Home() {
             </p>
           </div>
 
-          {/* System 06 */}
+          {/* System 05 */}
           <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
             <div className="flex justify-between items-start mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
                 <BookOpen className="w-3 h-3 text-primary" />
-                System 06
+                System 05
               </div>
               <a href="https://oinone.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Visit OINONE live demo" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
                 <ExternalLink className="w-4 h-4" />
@@ -257,12 +239,12 @@ export default function Home() {
             </p>
           </div>
 
-          {/* System 07 */}
+          {/* System 06 */}
           <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
             <div className="flex justify-between items-start mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
                 <Music className="w-3 h-3 text-primary" />
-                System 07
+                System 06
               </div>
               <a href="https://github.com/PetedianoTech" target="_blank" rel="noopener noreferrer" aria-label="Visit SoundBox Android Music Player on GitHub" className="p-2 rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
                 <ExternalLink className="w-4 h-4" />
@@ -275,12 +257,12 @@ export default function Home() {
             </p>
           </div>
 
-          {/* System 08 */}
+          {/* System 07 */}
           <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500">
             <div className="flex justify-between items-start mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
                 <Bot className="w-3 h-3 text-primary" />
-                System 08
+                System 07
               </div>
               <div className="px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-xs font-bold text-yellow-500 flex items-center gap-2">
                 Restricted (Under Dev)
@@ -293,7 +275,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* System 09: Hardware & IoT Exhibitions */}
+          {/* System 08: Hardware & IoT Exhibitions */}
           <div className="glass rounded-2xl p-8 flex flex-col h-full group hover:border-primary/30 transition-colors duration-500 md:col-span-2 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-purple-500/5 -z-10" />
             <div className="flex justify-between items-start mb-6 gap-4 flex-wrap">
@@ -318,9 +300,22 @@ export default function Home() {
               <div className="bg-white/5 border border-white/10 p-5 rounded-xl hover:bg-white/10 transition-colors relative group/card flex flex-col justify-between overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity" />
                 <div className="relative z-10">
-                  <Waves className="w-6 h-6 text-primary mb-3" />
-                  <h4 className="font-bold text-sm mb-2 text-white">Flood Alert System</h4>
-                  <p className="text-xs text-gray-400 leading-relaxed mb-4">Automated sensor using a switch mechanism to trigger an alarm and red LED visual warning during heavy rainfall to provide early alerts and save lives.</p>
+                  <div className="flex justify-between items-start mb-3">
+                    <Waves className="w-6 h-6 text-primary" />
+                    <a 
+                      href="https://automatic-flood-alert-app.vercel.app/" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="inline-flex items-center gap-1 text-[11px] font-mono text-primary hover:underline bg-primary/10 px-2 py-0.5 rounded border border-primary/20"
+                    >
+                      Open App
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <h4 className="font-bold text-sm mb-2 text-white">Automatic Flood Alert System</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                    Automated sensor switch connected with a dedicated app providing 4 safety warnings: SMS text alerts, loud app notifications, a physical siren alarm, and bright red LED warning lights to save lives during heavy rainfall.
+                  </p>
                 </div>
                 <div className="flex flex-col gap-1.5 mt-2 pt-4 border-t border-white/10 relative z-10">
                   <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
