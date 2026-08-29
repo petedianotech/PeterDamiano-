@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "projects": {
+      "title": "Portfolio Projects & Systems",
+      "description": "Showcase systems and applications created by Peter Damiano",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Name of the project or system" },
+        "subtitle": { "type": "string", "description": "Short headline" },
+        "description": { "type": "string", "description": "Summary of what the project does" },
+        "category": { "type": "string", "enum": ["web", "mobile", "ai", "hardware", "other"], "description": "Category" },
+        "liveUrl": { "type": "string", "description": "Live URL or demo link" },
+        "githubUrl": { "type": "string", "description": "GitHub repository URL" },
+        "status": { "type": "string", "enum": ["Live", "In Progress", "Beta", "Restricted"], "description": "Current status" },
+        "tags": { "type": "array", "items": { "type": "string" }, "description": "Technologies and badges" },
+        "order": { "type": "number", "description": "Display order" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description", "status"]
+    },
+    "inquiries": {
+      "title": "Client Contact Messages & Leads",
+      "description": "Messages sent by visitors looking to hire or contact Peter",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Sender name" },
+        "email": { "type": "string", "format": "email", "description": "Sender email" },
+        "phone": { "type": "string", "description": "Sender phone or WhatsApp" },
+        "service": { "type": "string", "description": "Requested project type or service" },
+        "budget": { "type": "string", "description": "Estimated budget or timeline" },
+        "message": { "type": "string", "description": "Message text" },
+        "read": { "type": "boolean", "description": "Read status" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "message", "createdAt"]
+    },
+    "profile_settings": {
+      "title": "Portfolio Configuration",
+      "description": "Customizable profile details and availability flags",
+      "type": "object",
+      "properties": {
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "availabilityStatus": { "type": "string" },
+        "announcementText": { "type": "string" },
+        "announcementActive": { "type": "boolean" },
+        "hourlyRateOrPricing": { "type": "string" }
+      }
+    }
+  }
+}

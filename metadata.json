@@ -1,5 +1,6 @@
 {
   "name": "Peter Damiano",
-  "description": "Portfolio of Peter Damiano, Innovator, Developer, and Systems Architect.",
-  "requestFramePermissions": []
+  "description": "Portfolio of Peter Damiano, Software Developer and Electronics Builder. Custom websites, mobile apps, and IoT systems.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
