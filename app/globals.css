@@ -4,12 +4,40 @@
   --color-background: #050505;
   --color-primary: #3B82F6;
   --color-success: #10B981;
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+/* Base resets & cross-browser compatibility */
+html, body {
+  background-color: #050505;
+  color: #ffffff;
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  word-break: break-word;
+}
+
+/* Glass panel fallback for older Android 6.0+ GPUs that lack hardware backdrop-filter */
 @layer utilities {
   .glass {
-    @apply bg-white/5 backdrop-blur-md border border-white/10;
+    background-color: rgba(18, 18, 20, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 }
+
+@supports (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px)) {
+  .glass {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+/* Smooth Image scaling safeguards */
+img, svg, video {
+  max-width: 100%;
+  height: auto;
+}
+

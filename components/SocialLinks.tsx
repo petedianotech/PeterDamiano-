@@ -174,18 +174,18 @@ export const SOCIAL_PLATFORMS: SocialPlatform[] = [
 
 export default function SocialLinksSection() {
   return (
-    <section id="socials" className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5">
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+    <section id="socials" className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-12 gap-6">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-3">
             <span className="w-2 h-2 rounded-full bg-primary" />
             Socials & Official Channels
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white">
             Connect with <span className="text-primary">@petediano</span>
           </h2>
         </div>
-        <p className="text-gray-400 text-sm md:text-base max-w-md">
+        <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-md">
           Follow my developer updates, interactive game challenges, and daily projects across all verified platforms.
         </p>
       </div>

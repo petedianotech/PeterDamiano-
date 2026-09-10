@@ -76,16 +76,16 @@ export default function Home() {
       <Navbar />
 
       {/* 1. Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-44 md:pb-28 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-start justify-center">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-[#050505] to-[#050505] -z-10" />
+      <section className="relative pt-24 pb-14 sm:pt-32 sm:pb-20 md:pt-40 md:pb-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-start justify-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-[#050505] to-[#050505] -z-10" />
         
         {/* Profile Showcase Banner */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="w-full relative rounded-2xl md:rounded-[2rem] overflow-hidden mb-10 border border-white/10 shadow-[0_0_40px_rgba(59,130,246,0.1)] group aspect-[16/9]"
+          transition={{ duration: 0.6 }}
+          className="w-full relative rounded-2xl md:rounded-[2rem] overflow-hidden mb-8 border border-white/10 shadow-[0_0_30px_rgba(59,130,246,0.1)] group aspect-[16/9] max-h-[60vh] sm:max-h-[500px]"
         >
           <Image
             src="https://i.ibb.co/dJjTT8Wj/Peterdamiano-image.jpg"
@@ -96,9 +96,9 @@ export default function Home() {
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-[#050505]/15 to-transparent pointer-events-none" />
-          <div className="absolute bottom-3 left-3 right-3 md:bottom-4 md:right-4 z-10 flex items-center justify-center md:justify-end">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/85 backdrop-blur-md border border-white/20 text-xs sm:text-sm md:text-base font-semibold tracking-wide text-white shadow-2xl max-w-full overflow-hidden whitespace-nowrap">
-              <Sparkles className="w-4 h-4 text-primary shrink-0" />
+          <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:bottom-4 sm:right-4 z-10 flex items-center justify-center sm:justify-end">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-black/90 border border-white/20 text-[11px] sm:text-xs md:text-sm font-semibold tracking-wide text-white shadow-xl max-w-full overflow-hidden whitespace-nowrap">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0" />
               <span>Innovator, Developer, Creator</span>
             </div>
           </div>
@@ -106,11 +106,11 @@ export default function Home() {
 
         {/* Availability Badge */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.05 }}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 mb-6"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 mb-5"
         >
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
           <span className="text-xs font-mono text-emerald-400 font-medium">Available for New Projects & Collaborations</span>
@@ -118,29 +118,29 @@ export default function Home() {
 
         {/* Main Name */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-6"
+          className="mb-5 w-full"
         >
           <div className="flex items-baseline gap-3 flex-wrap">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tighter text-white leading-[1.08]">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter text-white leading-[1.1] max-w-full">
               PETER DAMIANO
             </h1>
           </div>
-          <p className="text-sm md:text-base font-mono text-primary mt-2">
+          <p className="text-xs sm:text-sm md:text-base font-mono text-primary mt-2">
             Known online as <span className="font-semibold text-white">Petediano</span> (@petediano)
           </p>
         </motion.div>
         
         {/* Simple & Clear Intro */}
         <motion.p 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-lg md:text-2xl text-gray-300 max-w-3xl mb-10 font-normal leading-relaxed"
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mb-8 font-normal leading-relaxed"
         >
           Hi, I am <strong className="text-white font-semibold">Peter Damiano</strong> (Petediano). I build fast websites, mobile applications, smart alert electronics, and organize fun real-world gaming challenge videos where people compete for prizes. <br className="hidden md:block" />
           <span className="text-gray-400">Handcrafted with clean code, passion, and attention to detail from Mulanje, Malawi.</span>
@@ -191,20 +191,20 @@ export default function Home() {
 
       {/* 2. Featured Projects Section */}
       <motion.section 
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.7 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
         id="systems" 
-        className="py-24 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
+        className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
       >
-        <div className="mb-14">
+        <div className="mb-10 sm:mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-3">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
             Handcrafted Code & Hardware
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-3 text-white">Featured Projects</h2>
-          <p className="text-gray-400 text-sm md:text-base max-w-2xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 text-white">Featured Projects</h2>
+          <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-2xl">
             Real software applications, helpful web tools, and smart electronic hardware systems I have designed, coded, and deployed.
           </p>
         </div>
@@ -523,20 +523,20 @@ export default function Home() {
 
       {/* 3. Skills & Technologies Section */}
       <motion.section 
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.7 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
         id="stack" 
-        className="py-24 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
+        className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
       >
-        <div className="mb-14">
+        <div className="mb-10 sm:mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-3">
             <Code className="w-3.5 h-3.5 text-primary" />
             Skills & Languages
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-3 text-white">The Tools I Use</h2>
-          <p className="text-gray-400 text-sm md:text-base max-w-2xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 text-white">The Tools I Use</h2>
+          <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-2xl">
             I write clean, reliable code with modern programming languages and proven tools.
           </p>
         </div>
@@ -610,20 +610,20 @@ export default function Home() {
 
       {/* 4. Pricing & Work Packages */}
       <motion.section 
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.7 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
         id="services" 
-        className="py-24 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
+        className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
       >
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-3">
             <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
             Affordable & Honest Pricing
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-white">Work With Me</h2>
-          <p className="text-gray-400 text-sm md:text-base">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 text-white">Work With Me</h2>
+          <p className="text-gray-400 text-xs sm:text-sm md:text-base">
             Clear project pricing with direct communication, fast delivery, and clean code you own completely.
           </p>
         </div>
@@ -708,21 +708,21 @@ export default function Home() {
 
       {/* 5. My Story */}
       <motion.section 
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.7 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
         id="story" 
-        className="py-24 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
+        className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
       >
-        <div className="glass rounded-3xl p-8 md:p-14 border border-white/10 relative overflow-hidden">
+        <div className="glass rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-14 border border-white/10 relative overflow-hidden">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-5">
               <Globe className="w-3.5 h-3.5 text-primary" />
               My Story & Creative Journey
             </div>
 
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 text-white">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-5 text-white">
               From Mulanje, Malawi to the World — Peter Damiano (Petediano)
             </h2>
 
