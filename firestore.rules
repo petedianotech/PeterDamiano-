@@ -10,6 +10,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /blogs/{blogId} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow write: if isAdmin();
+    }
+
     match /inquiries/{inquiryId} {
       allow create: if request.resource.data.name is string && request.resource.data.message is string;
       allow read, update, delete: if isAdmin();

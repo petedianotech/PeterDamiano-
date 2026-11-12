@@ -57,7 +57,12 @@ import {
   RefreshCw,
   Tag,
   CheckCircle,
-  HelpCircle
+  HelpCircle,
+  BookOpen,
+  FileText,
+  Image as ImageIcon,
+  Upload,
+  Key
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -70,9 +75,25 @@ export interface ProjectItem {
   category: 'web' | 'mobile' | 'ai' | 'hardware' | 'other';
   liveUrl?: string;
   githubUrl?: string;
+  imageUrl?: string;
   status: 'Live' | 'In Progress' | 'Beta' | 'Restricted';
   tags: string[];
   order?: number;
+}
+
+export interface BlogItem {
+  id?: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  coverImage?: string;
+  category: string;
+  tags: string[];
+  published: boolean;
+  readTime: string;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface InquiryItem {
@@ -93,6 +114,7 @@ export interface ProfileSettings {
   availabilityStatus: string;
   announcementText: string;
   announcementActive: boolean;
+  imgbbApiKey?: string;
 }
 
 const DEFAULT_PROJECTS: ProjectItem[] = [
@@ -167,9 +189,42 @@ const DEFAULT_PROJECTS: ProjectItem[] = [
   }
 ];
 
+const DEFAULT_BLOGS: BlogItem[] = [
+  {
+    title: "From Mulanje, Malawi to the World — My Journey as a Developer & Creator",
+    slug: "from-mulanje-malawi-to-the-world",
+    excerpt: "Growing up in Dzenje, Mulanje, I discovered a passion for machines and software. Here is how I taught myself to code and build hardware.",
+    content: "My name is Peter Damiano, known across social platforms as Petediano (@petediano). Growing up in Dzenje, Mulanje, Malawi, I was always fascinated by how things worked. With limited resources, I taught myself programming, electronics soldering, and hardware engineering.\n\nToday, I build full-stack web applications, mobile apps in Kotlin, Flutter, and C++, and practical IoT hardware like the Automatic Flood Alert System. Alongside coding, I run challenge video projects and community games where people connect and win prizes.",
+    category: "Personal Journey",
+    tags: ["Malawi", "Petediano", "Developer Story", "Mulanje"],
+    published: true,
+    readTime: "4 min read"
+  },
+  {
+    title: "Building the 4-Way Automatic Flood Alert System",
+    slug: "automatic-flood-alert-system-malawi",
+    excerpt: "How water sensors, sirens, SMS alerts, and flashing LEDs protect Malawian communities from rising river waters during heavy storms.",
+    content: "Flooding is a major challenge during rainy seasons in many riverine communities. To protect families and livestock, I designed and built the Automatic Flood Alert System.\n\nThe system uses water level sensors connected to microcontroller units and a companion mobile app. When water crosses safety thresholds, it triggers an immediate local siren, bright flashing red LEDs, and automated SMS alerts to community leaders and residents.",
+    category: "Hardware & IoT",
+    tags: ["IoT", "Sensors", "Arduino", "Community Safety", "Flood Alert"],
+    published: true,
+    readTime: "5 min read"
+  },
+  {
+    title: "Why Next.js and Kotlin Are My Go-To Tools for Fast Full-Stack Apps",
+    slug: "why-nextjs-and-kotlin-are-my-go-to-tools",
+    excerpt: "Exploring why Next.js powers lightning-fast web apps like EducateMW and AI Tact while Kotlin drives robust Android experiences.",
+    content: "When building web applications that need to load instantly for students and professionals across Africa and globally, Next.js with React and Tailwind CSS provides unmatched speed and SEO performance.\n\nFor mobile devices, Kotlin and C++ enable high-performance offline audio playback and low-level sensor integration as seen in SoundBox. Choosing the right stack makes all the difference in delivering dependable digital tools.",
+    category: "Software Engineering",
+    tags: ["Next.js", "Kotlin", "React", "TypeScript", "Mobile Apps"],
+    published: true,
+    readTime: "3 min read"
+  }
+];
+
 const POPULAR_TAGS = [
   'Next.js', 'React', 'TypeScript', 'Flutter', 'Kotlin', 
-  'C++', 'Python', 'Firebase', 'Tailwind', 'Hardware', 'Sensors', 'AI'
+  'C++', 'Python', 'Firebase', 'Tailwind', 'Hardware', 'Sensors', 'AI', 'Malawi', 'Petediano'
 ];
 
 export default function AdminPage() {
@@ -177,11 +232,12 @@ export default function AdminPage() {
   const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   
-  // Navigation Tabs: 'overview' | 'projects' | 'messages' | 'settings'
-  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'messages' | 'settings'>('overview');
+  // Navigation Tabs
+  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'blogs' | 'messages' | 'settings'>('overview');
 
   // Data States
   const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [blogs, setBlogs] = useState<BlogItem[]>([]);
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
   const [settings, setSettings] = useState<ProfileSettings>({
     phone: '+265 98 706 6051',
@@ -189,15 +245,18 @@ export default function AdminPage() {
     whatsapp: '265987066051',
     availabilityStatus: 'Available for high-stakes projects & consultations',
     announcementText: 'Now building Mobile Applications using Flutter, C++, Kotlin, and Python.',
-    announcementActive: true
+    announcementActive: true,
+    imgbbApiKey: ''
   });
   
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Filters & Search
   const [projectSearch, setProjectSearch] = useState('');
   const [projectCategoryFilter, setProjectCategoryFilter] = useState<'all' | 'web' | 'mobile' | 'ai' | 'hardware' | 'other'>('all');
+  const [blogSearch, setBlogSearch] = useState('');
   const [inquiryFilter, setInquiryFilter] = useState<'all' | 'unread' | 'read'>('all');
 
   // Project Modal State
@@ -210,14 +269,52 @@ export default function AdminPage() {
     category: 'web',
     liveUrl: '',
     githubUrl: '',
+    imageUrl: '',
     status: 'Live',
     tags: []
   });
   const [tagInput, setTagInput] = useState('');
 
-  // Inquiry Detail State (for mobile drilldown)
+  // Blog Modal State
+  const [editingBlog, setEditingBlog] = useState<BlogItem | null>(null);
+  const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
+  const [blogForm, setBlogForm] = useState<BlogItem>({
+    title: '',
+    slug: '',
+    excerpt: '',
+    content: '',
+    coverImage: '',
+    category: 'Software Engineering',
+    tags: ['Next.js', 'Malawi'],
+    published: true,
+    readTime: '4 min read'
+  });
+  const [blogTagInput, setBlogTagInput] = useState('');
+
+  // Inquiry Detail State
   const [selectedInquiry, setSelectedInquiry] = useState<InquiryItem | null>(null);
   const [mobileMessageViewOpen, setMobileMessageViewOpen] = useState(false);
+
+  // ImgBB Upload helper function
+  const uploadToImgBB = async (file: File): Promise<string> => {
+    const apiKey = settings.imgbbApiKey?.trim();
+    if (!apiKey) {
+      throw new Error('Please add your ImgBB API Key in the Settings tab before uploading images.');
+    }
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+      method: 'POST',
+      body: formData
+    });
+    const json = await res.json();
+    if (json && json.success && json.data && json.data.url) {
+      return json.data.url;
+    } else {
+      throw new Error(json.error?.message || 'ImgBB upload failed. Please check your API key.');
+    }
+  };
 
   // Listen for Auth changes
   useEffect(() => {
@@ -228,11 +325,10 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, []);
 
-  // Listen to Firestore data once authenticated
+  // Listen to Firestore data
   useEffect(() => {
     if (!user || user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) return;
 
-    // 1. Projects listener
     const projectsRef = collection(db, 'projects');
     const projectsQuery = query(projectsRef, orderBy('order', 'asc'));
     const unsubProjects = onSnapshot(projectsQuery, (snapshot) => {
@@ -245,7 +341,18 @@ export default function AdminPage() {
       console.warn('Projects snapshot fallback:', err.message);
     });
 
-    // 2. Inquiries listener
+    const blogsRef = collection(db, 'blogs');
+    const blogsQuery = query(blogsRef, orderBy('createdAt', 'desc'));
+    const unsubBlogs = onSnapshot(blogsQuery, (snapshot) => {
+      const list: BlogItem[] = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...(docSnap.data() as Omit<BlogItem, 'id'>) });
+      });
+      setBlogs(list);
+    }, (err) => {
+      console.warn('Blogs snapshot fallback:', err.message);
+    });
+
     const inquiriesRef = collection(db, 'inquiries');
     const inquiriesQuery = query(inquiriesRef, orderBy('createdAt', 'desc'));
     const unsubInquiries = onSnapshot(inquiriesQuery, (snapshot) => {
@@ -258,7 +365,6 @@ export default function AdminPage() {
       console.warn('Inquiries snapshot fallback:', err.message);
     });
 
-    // 3. Profile Settings listener
     const settingsDoc = doc(db, 'profile_settings', 'current');
     const unsubSettings = onSnapshot(settingsDoc, (docSnap) => {
       if (docSnap.exists()) {
@@ -268,6 +374,7 @@ export default function AdminPage() {
 
     return () => {
       unsubProjects();
+      unsubBlogs();
       unsubInquiries();
       unsubSettings();
     };
@@ -304,9 +411,8 @@ export default function AdminPage() {
     await signOut(auth);
   };
 
-  // Seed default portfolio data if Firestore is empty
   const handleSeedDefaults = async () => {
-    if (!confirm('This will load the 7 featured systems into your Firestore database for instant editing. Continue?')) return;
+    if (!confirm('This will load the 7 featured systems into your Firestore database. Continue?')) return;
     setIsSaving(true);
     try {
       const projectsCol = collection(db, 'projects');
@@ -317,7 +423,7 @@ export default function AdminPage() {
           updatedAt: serverTimestamp()
         });
       }
-      showToast('Loaded 7 portfolio systems into Firestore successfully.');
+      showToast('Loaded 7 portfolio systems successfully.');
     } catch (err: any) {
       alert('Error loading defaults: ' + err.message);
     } finally {
@@ -325,7 +431,27 @@ export default function AdminPage() {
     }
   };
 
-  // Open Modal to Add or Edit Project
+  const handleSeedDefaultBlogs = async () => {
+    if (!confirm('This will load 3 sample blog posts into Firestore. Continue?')) return;
+    setIsSaving(true);
+    try {
+      const blogsCol = collection(db, 'blogs');
+      for (const item of DEFAULT_BLOGS) {
+        await addDoc(blogsCol, {
+          ...item,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      }
+      showToast('Loaded 3 sample blog posts successfully.');
+    } catch (err: any) {
+      alert('Error loading default blogs: ' + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Project Modal Actions
   const openProjectModal = (project?: ProjectItem) => {
     if (project) {
       setEditingProject(project);
@@ -339,6 +465,7 @@ export default function AdminPage() {
         category: 'web',
         liveUrl: '',
         githubUrl: '',
+        imageUrl: '',
         status: 'Live',
         tags: ['Next.js', 'TypeScript'],
         order: (projects.length > 0 ? projects.length : DEFAULT_PROJECTS.length) + 1
@@ -412,6 +539,95 @@ export default function AdminPage() {
     });
   };
 
+  // Blog Modal Actions
+  const openBlogModal = (blog?: BlogItem) => {
+    if (blog) {
+      setEditingBlog(blog);
+      setBlogForm({ ...blog });
+    } else {
+      setEditingBlog(null);
+      setBlogForm({
+        title: '',
+        slug: '',
+        excerpt: '',
+        content: '',
+        coverImage: '',
+        category: 'Software Engineering',
+        tags: ['Next.js', 'Malawi'],
+        published: true,
+        readTime: '4 min read'
+      });
+    }
+    setBlogTagInput('');
+    setIsBlogModalOpen(true);
+  };
+
+  const handleTitleChangeForSlug = (title: string) => {
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    setBlogForm({
+      ...blogForm,
+      title,
+      slug: editingBlog ? blogForm.slug : slug
+    });
+  };
+
+  const handleSaveBlog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!blogForm.title.trim() || !blogForm.content.trim()) {
+      alert('Please enter a title and content for your blog post.');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const slug = blogForm.slug.trim() || blogForm.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      if (editingBlog?.id) {
+        const ref = doc(db, 'blogs', editingBlog.id);
+        await updateDoc(ref, {
+          ...blogForm,
+          slug,
+          updatedAt: serverTimestamp()
+        });
+        showToast('Blog post updated successfully.');
+      } else {
+        const ref = collection(db, 'blogs');
+        await addDoc(ref, {
+          ...blogForm,
+          slug,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+        showToast('New blog post published.');
+      }
+      setIsBlogModalOpen(false);
+    } catch (err: any) {
+      alert('Error saving blog: ' + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteBlog = async (id?: string) => {
+    if (!id) return;
+    if (!confirm('Are you sure you want to permanently delete this blog post?')) return;
+    try {
+      await deleteDoc(doc(db, 'blogs', id));
+      showToast('Blog post deleted.');
+    } catch (err: any) {
+      alert('Error deleting: ' + err.message);
+    }
+  };
+
+  const handleRemoveBlogTag = (tagToRemove: string) => {
+    setBlogForm({
+      ...blogForm,
+      tags: blogForm.tags.filter(t => t !== tagToRemove)
+    });
+  };
+
   const handleToggleInquiryRead = async (inquiry: InquiryItem) => {
     if (!inquiry.id) return;
     try {
@@ -419,7 +635,6 @@ export default function AdminPage() {
       await updateDoc(ref, {
         read: !inquiry.read
       });
-      // update local selected object if matched
       if (selectedInquiry?.id === inquiry.id) {
         setSelectedInquiry({ ...selectedInquiry, read: !inquiry.read });
       }
@@ -471,6 +686,17 @@ export default function AdminPage() {
     });
   }, [projects, projectSearch, projectCategoryFilter]);
 
+  const displayBlogsList = useMemo(() => {
+    const list = blogs.length > 0 ? blogs : DEFAULT_BLOGS;
+    return list.filter(item => {
+      const matchSearch = blogSearch === '' ||
+        item.title.toLowerCase().includes(blogSearch.toLowerCase()) ||
+        item.category.toLowerCase().includes(blogSearch.toLowerCase()) ||
+        item.tags.some(t => t.toLowerCase().includes(blogSearch.toLowerCase()));
+      return matchSearch;
+    });
+  }, [blogs, blogSearch]);
+
   const filteredInquiries = useMemo(() => {
     return inquiries.filter(inq => {
       if (inquiryFilter === 'unread') return !inq.read;
@@ -481,7 +707,6 @@ export default function AdminPage() {
 
   const unreadMessagesCount = inquiries.filter(i => !i.read).length;
 
-  // Format Date helper
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'Recently';
     if (timestamp.toDate) {
@@ -495,25 +720,23 @@ export default function AdminPage() {
     return 'Recently';
   };
 
-  // 1. Loading Screen
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-6 font-sans">
         <div className="relative mb-6">
           <div className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           <div className="absolute inset-0 flex items-center justify-center">
             <ShieldCheck className="w-5 h-5 text-primary animate-pulse" />
           </div>
         </div>
-        <p className="font-mono text-xs text-gray-400">Verifying administrator access...</p>
+        <p className="text-sm text-gray-300">Verifying administrator access...</p>
       </div>
     );
   }
 
-  // 2. Not Logged In Screen
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-4 sm:p-6 selection:bg-primary/30">
+      <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-4 sm:p-6 font-sans selection:bg-primary/30">
         <div className="w-full max-w-md bg-[#0a0a0c] rounded-3xl p-6 sm:p-10 border border-white/10 shadow-2xl flex flex-col items-center text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10 pointer-events-none" />
           
@@ -521,14 +744,14 @@ export default function AdminPage() {
             <ShieldCheck className="w-8 h-8" />
           </div>
           
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-sans font-medium text-gray-200 mb-3">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             Admin Portal
           </div>
 
           <h1 className="text-2xl font-bold text-white tracking-tight mb-2">Admin Dashboard</h1>
-          <p className="text-xs sm:text-sm text-gray-400 mb-8 leading-relaxed max-w-xs">
-            Welcome, Peter Damiano. Sign in with your verified Google account to manage systems, inquiries, and settings.
+          <p className="text-xs sm:text-sm text-gray-300 mb-8 leading-relaxed max-w-xs">
+            Welcome, Peter Damiano. Sign in with your verified Google account to manage systems, blog posts, images, and settings.
           </p>
 
           {authError && (
@@ -539,7 +762,6 @@ export default function AdminPage() {
           )}
 
           <button
-            id="google-signin-button"
             onClick={handleGoogleLogin}
             className="w-full py-3.5 px-6 rounded-2xl bg-white hover:bg-gray-100 text-black font-semibold text-sm transition-all flex items-center justify-center gap-3 shadow-xl active:scale-[0.98] cursor-pointer"
           >
@@ -552,9 +774,9 @@ export default function AdminPage() {
             <span>Continue with Google</span>
           </button>
 
-          <div className="mt-8 pt-6 border-t border-white/10 w-full flex items-center justify-between text-xs font-mono text-gray-500">
+          <div className="mt-8 pt-6 border-t border-white/10 w-full flex items-center justify-between text-xs text-gray-400 font-sans">
             <span>Security Protected</span>
-            <Link href="/" className="text-gray-400 hover:text-primary transition-colors flex items-center gap-1">
+            <Link href="/" className="text-gray-300 hover:text-primary transition-colors flex items-center gap-1">
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Portfolio
             </Link>
           </div>
@@ -563,19 +785,18 @@ export default function AdminPage() {
     );
   }
 
-  // 3. Unauthorized Account Check
   const isAuthorized = user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-4 sm:p-6 selection:bg-primary/30">
+      <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-4 sm:p-6 font-sans selection:bg-primary/30">
         <div className="w-full max-w-md bg-[#0a0a0c] rounded-3xl p-6 sm:p-8 border border-red-500/20 shadow-2xl flex flex-col items-center text-center">
           <div className="w-14 h-14 rounded-2xl bg-red-500/10 text-red-400 flex items-center justify-center mb-5 border border-red-500/20">
             <AlertTriangle className="w-7 h-7" />
           </div>
           
           <h1 className="text-xl font-bold text-red-400 mb-2">Access Restricted</h1>
-          <p className="text-xs sm:text-sm text-gray-400 mb-6 leading-relaxed">
+          <p className="text-xs sm:text-sm text-gray-300 mb-6 leading-relaxed">
             Signed in with an unauthorized account. Only the portfolio owner is authorized to access this console.
           </p>
 
@@ -587,7 +808,7 @@ export default function AdminPage() {
             <span>Sign Out & Switch Account</span>
           </button>
 
-          <Link href="/" className="text-xs font-mono text-gray-400 hover:text-primary transition-colors flex items-center gap-1">
+          <Link href="/" className="text-xs text-gray-300 hover:text-primary transition-colors flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" /> Return to Public Website
           </Link>
         </div>
@@ -595,13 +816,11 @@ export default function AdminPage() {
     );
   }
 
-  // 4. Logged in & Authorized
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-primary/30 pb-24 md:pb-16 flex flex-col">
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-primary/30 pb-24 md:pb-16 flex flex-col">
       {/* Top Header */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#08080a]/95 backdrop-blur-md px-4 sm:px-6 md:px-12 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          {/* Brand & User info */}
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-white/20 relative shrink-0">
               <Image
@@ -615,32 +834,29 @@ export default function AdminPage() {
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="font-bold text-xs sm:text-sm tracking-tight text-white truncate">Peter Damiano</span>
-                <span className="bg-primary/15 text-primary text-[9px] sm:text-[10px] font-mono px-1.5 py-0.5 rounded border border-primary/30 font-bold shrink-0">
+                <span className="bg-primary/20 text-primary text-[10px] px-2 py-0.5 rounded-full border border-primary/30 font-bold shrink-0">
                   ADMIN
                 </span>
               </div>
-              <p className="text-[10px] sm:text-xs font-mono text-gray-400 truncate">Petediano Console</p>
+              <p className="text-xs text-gray-300 truncate">Petediano Console</p>
             </div>
           </div>
 
-          {/* Quick Header Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/"
               target="_blank"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-mono text-gray-300 border border-white/10 transition-colors"
-              title="Open public website in new tab"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-200 border border-white/10 transition-colors"
             >
               <Globe className="w-3.5 h-3.5 text-primary" />
               <span className="hidden sm:inline">View Site</span>
-              <ExternalLink className="w-3 h-3 text-gray-400 hidden sm:inline" />
+              <ExternalLink className="w-3 h-3 text-gray-300 hidden sm:inline" />
             </Link>
 
             <button
               onClick={handleSignOut}
               title="Sign Out"
-              className="p-2 sm:p-2.5 rounded-xl bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors border border-white/10 cursor-pointer"
-              aria-label="Sign out"
+              className="p-2 sm:p-2.5 rounded-xl bg-white/5 hover:bg-red-500/20 text-gray-300 hover:text-red-400 transition-colors border border-white/10 cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -651,15 +867,13 @@ export default function AdminPage() {
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 pt-6 flex-1 w-full">
         
-        {/* Desktop & Tablet Segmented Navigation Bar */}
+        {/* Desktop & Tablet Navigation Bar */}
         <div className="hidden md:flex items-center justify-between border-b border-white/10 pb-4 mb-8 gap-4">
           <div className="flex items-center gap-1.5 bg-[#0e0e12] p-1.5 rounded-2xl border border-white/10">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
-                activeTab === 'overview'
-                  ? 'bg-primary text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'overview' ? 'bg-primary text-white shadow-lg' : 'text-gray-300 hover:text-white hover:bg-white/5'
               }`}
             >
               <Layers className="w-4 h-4" />
@@ -668,35 +882,44 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('projects')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
-                activeTab === 'projects'
-                  ? 'bg-primary text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'projects' ? 'bg-primary text-white shadow-lg' : 'text-gray-300 hover:text-white hover:bg-white/5'
               }`}
             >
               <Cpu className="w-4 h-4" />
-              <span>Systems & Projects</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white/15 text-white">
+              <span>Systems</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white font-semibold">
                 {projects.length > 0 ? projects.length : DEFAULT_PROJECTS.length}
               </span>
             </button>
 
             <button
+              onClick={() => setActiveTab('blogs')}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'blogs' ? 'bg-primary text-white shadow-lg' : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Blog Section</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white font-semibold">
+                {blogs.length > 0 ? blogs.length : DEFAULT_BLOGS.length}
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('messages')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 relative cursor-pointer ${
-                activeTab === 'messages'
-                  ? 'bg-primary text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 relative cursor-pointer ${
+                activeTab === 'messages' ? 'bg-primary text-white shadow-lg' : 'text-gray-300 hover:text-white hover:bg-white/5'
               }`}
             >
               <MessageSquare className="w-4 h-4" />
               <span>Inquiries</span>
               {unreadMessagesCount > 0 ? (
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary text-white font-bold animate-pulse">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-primary text-white font-bold animate-pulse">
                   {unreadMessagesCount} new
                 </span>
               ) : (
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white/15 text-gray-300">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-white/15 text-gray-300">
                   {inquiries.length}
                 </span>
               )}
@@ -704,76 +927,58 @@ export default function AdminPage() {
 
             <button
               onClick={() => setActiveTab('settings')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
-                activeTab === 'settings'
-                  ? 'bg-primary text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'settings' ? 'bg-primary text-white shadow-lg' : 'text-gray-300 hover:text-white hover:bg-white/5'
               }`}
             >
               <Sliders className="w-4 h-4" />
-              <span>Settings</span>
+              <span>Settings & ImgBB</span>
             </button>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-gray-400 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-2 text-xs text-gray-300 bg-white/5 px-3.5 py-2 rounded-xl border border-white/10">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <span>Firestore Live Sync</span>
           </div>
         </div>
 
         {/* ------------------------------------------------------------- */}
-        {/* TAB 1: OVERVIEW & STATS */}
+        {/* TAB 1: OVERVIEW */}
         {/* ------------------------------------------------------------- */}
         {activeTab === 'overview' && (
           <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
-            {/* Top Control Banner */}
             <div className="bg-[#0b0b0e] rounded-3xl p-6 sm:p-8 border border-white/10 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl">
               <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl -z-10 pointer-events-none" />
               
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-200 mb-3">
                   <Sparkles className="w-3.5 h-3.5 text-primary" />
                   Portfolio Command Center
                 </div>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mb-2">
                   Welcome back, Peter!
                 </h2>
-                <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
-                  Manage your featured systems, review prospective client messages, and update public contact information in real-time.
+                <p className="text-sm text-gray-300 leading-relaxed">
+                  Manage systems, upload images via ImgBB API directly from your phone browser, publish SEO articles, and review inquiries.
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 <button
-                  onClick={() => openProjectModal()}
-                  className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-primary hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-98 cursor-pointer"
+                  onClick={() => openBlogModal()}
+                  className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-primary hover:bg-blue-600 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 cursor-pointer active:scale-98"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Add New System</span>
+                  <span>Write New Blog Post</span>
                 </button>
-
-                {projects.length === 0 && (
-                  <button
-                    onClick={handleSeedDefaults}
-                    disabled={isSaving}
-                    className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 border border-white/15 cursor-pointer"
-                  >
-                    <FolderPlus className="w-4 h-4 text-primary" />
-                    <span>Sync Initial 7 Systems</span>
-                  </button>
-                )}
               </div>
             </div>
 
-            {/* Quick Metrics Grid */}
+            {/* Metrics Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              {/* Card 1 */}
-              <div 
-                onClick={() => setActiveTab('projects')}
-                className="bg-[#0b0b0e] hover:bg-[#111116] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/10 transition-all cursor-pointer group"
-              >
+              <div onClick={() => setActiveTab('projects')} className="bg-[#0b0b0e] hover:bg-[#111116] p-5 sm:p-6 rounded-3xl border border-white/10 transition-all cursor-pointer group">
                 <div className="flex items-center justify-between text-gray-400 mb-2">
-                  <span className="text-[11px] sm:text-xs font-mono">Systems</span>
+                  <span className="text-xs font-medium">Systems</span>
                   <div className="p-2 rounded-xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                     <Layers className="w-4 h-4" />
                   </div>
@@ -781,19 +986,31 @@ export default function AdminPage() {
                 <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
                   {projects.length > 0 ? projects.length : DEFAULT_PROJECTS.length}
                 </div>
-                <div className="text-[10px] sm:text-xs text-gray-500 font-mono mt-1 flex items-center gap-1">
-                  <span>Manage Portfolio</span>
+                <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                  <span>Manage Systems</span>
                   <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
 
-              {/* Card 2 */}
-              <div 
-                onClick={() => setActiveTab('messages')}
-                className="bg-[#0b0b0e] hover:bg-[#111116] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/10 transition-all cursor-pointer group"
-              >
+              <div onClick={() => setActiveTab('blogs')} className="bg-[#0b0b0e] hover:bg-[#111116] p-5 sm:p-6 rounded-3xl border border-white/10 transition-all cursor-pointer group">
                 <div className="flex items-center justify-between text-gray-400 mb-2">
-                  <span className="text-[11px] sm:text-xs font-mono">Inquiries</span>
+                  <span className="text-xs font-medium">Blog Posts</span>
+                  <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  {blogs.length > 0 ? blogs.length : DEFAULT_BLOGS.length}
+                </div>
+                <div className="text-xs text-purple-400 mt-1 flex items-center gap-1">
+                  <span>SEO Articles</span>
+                  <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+
+              <div onClick={() => setActiveTab('messages')} className="bg-[#0b0b0e] hover:bg-[#111116] p-5 sm:p-6 rounded-3xl border border-white/10 transition-all cursor-pointer group">
+                <div className="flex items-center justify-between text-gray-400 mb-2">
+                  <span className="text-xs font-medium">Inquiries</span>
                   <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 group-hover:scale-110 transition-transform">
                     <MessageSquare className="w-4 h-4" />
                   </div>
@@ -801,207 +1018,57 @@ export default function AdminPage() {
                 <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
                   {inquiries.length}
                 </div>
-                <div className="text-[10px] sm:text-xs text-primary font-mono mt-1 flex items-center gap-1 font-semibold">
+                <div className="text-xs text-primary font-semibold mt-1 flex items-center gap-1">
                   <span>{unreadMessagesCount} unread</span>
                   <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
 
-              {/* Card 3 */}
-              <div className="bg-[#0b0b0e] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/10">
+              <div onClick={() => setActiveTab('settings')} className="bg-[#0b0b0e] hover:bg-[#111116] p-5 sm:p-6 rounded-3xl border border-white/10 transition-all cursor-pointer group">
                 <div className="flex items-center justify-between text-gray-400 mb-2">
-                  <span className="text-[11px] sm:text-xs font-mono">Live Deployed</span>
+                  <span className="text-xs font-medium">ImgBB API</span>
                   <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400">
-                    <CheckCircle2 className="w-4 h-4" />
+                    <ImageIcon className="w-4 h-4" />
                   </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-emerald-400 tracking-tight">
-                  {(projects.length > 0 ? projects : DEFAULT_PROJECTS).filter(p => p.status === 'Live').length}
+                <div className="text-sm font-bold text-blue-400 truncate mt-1">
+                  {settings.imgbbApiKey ? 'API Key Configured' : 'Configure Key →'}
                 </div>
-                <div className="text-[10px] sm:text-xs text-gray-500 font-mono mt-1">Online & Accessible</div>
-              </div>
-
-              {/* Card 4 */}
-              <div 
-                onClick={() => setActiveTab('settings')}
-                className="bg-[#0b0b0e] hover:bg-[#111116] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/10 transition-all cursor-pointer group"
-              >
-                <div className="flex items-center justify-between text-gray-400 mb-2">
-                  <span className="text-[11px] sm:text-xs font-mono">Availability</span>
-                  <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-                    <Radio className="w-4 h-4 animate-pulse" />
-                  </div>
-                </div>
-                <div className="text-sm sm:text-base font-bold text-emerald-400 truncate mt-1">
-                  Open for Work
-                </div>
-                <div className="text-[10px] sm:text-xs text-gray-500 font-mono mt-1">Edit Settings →</div>
-              </div>
-            </div>
-
-            {/* Quick Actions & Recent Messages Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Recent Inquiries Card */}
-              <div className="bg-[#0b0b0e] rounded-3xl p-5 sm:p-7 border border-white/10 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                      <h3 className="font-bold text-sm sm:text-base text-white">Recent Client Inquiries</h3>
-                    </div>
-                    <button 
-                      onClick={() => setActiveTab('messages')}
-                      className="text-xs font-mono text-primary hover:underline"
-                    >
-                      View All ({inquiries.length}) →
-                    </button>
-                  </div>
-
-                  {inquiries.length === 0 ? (
-                    <div className="text-center py-10 text-gray-500 text-xs font-mono bg-white/5 rounded-2xl p-6 border border-white/5">
-                      <MessageSquare className="w-8 h-8 text-gray-600 mx-auto mb-2 opacity-50" />
-                      No inquiries received yet. Messages sent via your homepage contact form will appear here.
-                    </div>
-                  ) : (
-                    <div className="space-y-2.5">
-                      {inquiries.slice(0, 3).map((inq) => (
-                        <div 
-                          key={inq.id}
-                          onClick={() => {
-                            setSelectedInquiry(inq);
-                            setMobileMessageViewOpen(true);
-                            setActiveTab('messages');
-                          }}
-                          className={`p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer ${
-                            !inq.read 
-                              ? 'bg-white/10 border-primary/40 shadow-sm' 
-                              : 'bg-white/5 border-white/5 hover:border-white/20'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-semibold text-xs sm:text-sm text-white truncate max-w-[70%]">
-                              {inq.name}
-                            </span>
-                            {!inq.read ? (
-                              <span className="text-[9px] font-mono bg-primary text-white px-2 py-0.5 rounded font-bold">
-                                NEW
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-mono text-gray-500">
-                                {formatDate(inq.createdAt)}
-                              </span>
-                            )}
-                          </div>
-                          {inq.service && (
-                            <span className="text-[10px] font-mono text-primary block mb-1">
-                              {inq.service}
-                            </span>
-                          )}
-                          <p className="text-xs text-gray-400 line-clamp-1">{inq.message}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-4 mt-4 border-t border-white/10">
-                  <button
-                    onClick={() => setActiveTab('messages')}
-                    className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-mono transition-colors text-center block"
-                  >
-                    Open Full Inbox
-                  </button>
-                </div>
-              </div>
-
-              {/* Fast Settings Preview */}
-              <div className="bg-[#0b0b0e] rounded-3xl p-5 sm:p-7 border border-white/10 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                      <h3 className="font-bold text-sm sm:text-base text-white">Public Channels & Notice</h3>
-                    </div>
-                    <button 
-                      onClick={() => setActiveTab('settings')}
-                      className="text-xs font-mono text-primary hover:underline"
-                    >
-                      Edit Info →
-                    </button>
-                  </div>
-
-                  <div className="space-y-2.5 text-xs">
-                    <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                      <span className="text-gray-400 font-mono text-[11px]">Phone / WhatsApp</span>
-                      <span className="font-mono text-white font-medium">{settings.phone}</span>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                      <span className="text-gray-400 font-mono text-[11px]">Official Email</span>
-                      <span className="font-mono text-white font-medium truncate max-w-[180px]">{settings.email}</span>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                      <span className="text-gray-400 font-mono text-[11px]">Announcement</span>
-                      <span className={`px-2 py-0.5 rounded font-mono text-[10px] ${settings.announcementActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold' : 'bg-white/5 text-gray-400 border border-white/10'}`}>
-                        {settings.announcementActive ? 'Active on Home' : 'Disabled'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4 mt-4 border-t border-white/10">
-                  <button
-                    onClick={() => setActiveTab('settings')}
-                    className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-mono transition-colors text-center block"
-                  >
-                    Manage Settings & Bio
-                  </button>
-                </div>
+                <div className="text-xs text-gray-400 mt-1">Image Uploads Ready</div>
               </div>
             </div>
           </div>
         )}
 
         {/* ------------------------------------------------------------- */}
-        {/* TAB 2: PROJECTS & SYSTEMS MANAGER */}
+        {/* TAB 2: PROJECTS & SYSTEMS */}
         {/* ------------------------------------------------------------- */}
         {activeTab === 'projects' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            {/* Header & Controls */}
             <div className="bg-[#0b0b0e] p-5 sm:p-7 rounded-3xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">Portfolio Systems Manager</h2>
-                <p className="text-xs text-gray-400 font-mono mt-0.5">
-                  Publish, update, or reorganize systems shown on your website.
+                <p className="text-xs sm:text-sm text-gray-300 mt-0.5">
+                  Publish, update, or add screenshots to your systems.
                 </p>
               </div>
 
               <div className="flex items-center gap-2 sm:gap-3">
                 {projects.length === 0 && (
-                  <button
-                    onClick={handleSeedDefaults}
-                    disabled={isSaving}
-                    className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-mono flex items-center gap-2 border border-white/10 cursor-pointer transition-colors"
-                  >
-                    <FolderPlus className="w-3.5 h-3.5 text-primary" />
-                    <span className="hidden sm:inline">Sync Initial 7</span>
+                  <button onClick={handleSeedDefaults} disabled={isSaving} className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs sm:text-sm flex items-center gap-2 border border-white/10 cursor-pointer">
+                    <FolderPlus className="w-4 h-4 text-primary" />
+                    <span>Sync Initial 7</span>
                   </button>
                 )}
 
-                <button
-                  onClick={() => openProjectModal()}
-                  className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-primary/20 transition-all cursor-pointer active:scale-98"
-                >
+                <button onClick={() => openProjectModal()} className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-primary/20 cursor-pointer active:scale-98">
                   <Plus className="w-4 h-4" />
                   <span>Add Project</span>
                 </button>
               </div>
             </div>
 
-            {/* Search & Category Filter Bar */}
             <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-              {/* Search Bar */}
               <div className="relative flex-1">
                 <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
@@ -1009,28 +1076,22 @@ export default function AdminPage() {
                   value={projectSearch}
                   onChange={(e) => setProjectSearch(e.target.value)}
                   placeholder="Search systems by title, tech, or tags..."
-                  className="w-full bg-[#0b0b0e] border border-white/10 rounded-2xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors font-sans"
+                  className="w-full bg-[#0b0b0e] border border-white/10 rounded-2xl pl-10 pr-10 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary font-sans"
                 />
                 {projectSearch && (
-                  <button
-                    onClick={() => setProjectSearch('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-                  >
+                  <button onClick={() => setProjectSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
                     <X className="w-4 h-4" />
                   </button>
                 )}
               </div>
 
-              {/* Category Pills (Horizontal Scroll on Mobile) */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
                 {(['all', 'web', 'mobile', 'ai', 'hardware', 'other'] as const).map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setProjectCategoryFilter(cat)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-mono whitespace-nowrap transition-all cursor-pointer ${
-                      projectCategoryFilter === cat
-                        ? 'bg-white text-black font-semibold shadow'
-                        : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/10'
+                    className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      projectCategoryFilter === cat ? 'bg-white text-black shadow' : 'bg-white/5 text-gray-300 hover:text-white hover:bg-white/10 border border-white/10'
                     }`}
                   >
                     {cat.toUpperCase()}
@@ -1039,111 +1100,60 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Project Cards Grid */}
             {displayProjectsList.length === 0 ? (
               <div className="bg-[#0b0b0e] rounded-3xl p-12 border border-white/10 text-center">
-                <Cpu className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-                <h3 className="text-sm font-bold text-white mb-1">No Systems Found</h3>
-                <p className="text-xs text-gray-400 max-w-sm mx-auto mb-4">
-                  No projects match your current search or category filter.
-                </p>
-                <button
-                  onClick={() => { setProjectSearch(''); setProjectCategoryFilter('all'); }}
-                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-white font-mono"
-                >
+                <Cpu className="w-10 h-10 text-gray-500 mx-auto mb-3" />
+                <h3 className="text-base font-bold text-white mb-1">No Systems Found</h3>
+                <p className="text-xs text-gray-300 max-w-sm mx-auto mb-4">No projects match your search or filter.</p>
+                <button onClick={() => { setProjectSearch(''); setProjectCategoryFilter('all'); }} className="px-4 py-2 rounded-xl bg-white/10 text-xs text-white font-medium">
                   Clear Filters
                 </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {displayProjectsList.map((item, index) => (
-                  <div
-                    key={item.id || index}
-                    className="bg-[#0b0b0e] hover:bg-[#101014] rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-white/10 flex flex-col justify-between transition-all group shadow-md"
-                  >
+                  <div key={item.id || index} className="bg-[#0b0b0e] hover:bg-[#101014] rounded-3xl p-5 sm:p-7 border border-white/10 flex flex-col justify-between transition-all group shadow-md">
                     <div>
-                      {/* Top Category & Status Header */}
-                      <div className="flex items-start justify-between gap-3 mb-3.5">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 text-[10px] font-mono text-gray-300 border border-white/10">
-                          {item.category === 'mobile' && <Smartphone className="w-3 h-3 text-primary" />}
-                          {item.category === 'hardware' && <Cpu className="w-3 h-3 text-primary" />}
-                          {item.category === 'ai' && <Sparkles className="w-3 h-3 text-primary" />}
-                          {item.category === 'web' && <Globe className="w-3 h-3 text-primary" />}
-                          <span className="uppercase font-semibold">{item.category}</span>
+                      {item.imageUrl && (
+                        <div className="w-full h-40 rounded-2xl overflow-hidden mb-4 relative border border-white/10">
+                          <Image src={item.imageUrl} alt={item.title} fill className="object-cover" unoptimized />
                         </div>
-
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold ${
-                          item.status === 'Live' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25' :
-                          item.status === 'In Progress' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/25' :
-                          'bg-blue-500/10 text-blue-400 border border-blue-500/25'
-                        }`}>
+                      )}
+                      <div className="flex items-start justify-between gap-3 mb-3.5">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/5 text-xs font-medium text-gray-200 border border-white/10">
+                          <span className="uppercase">{item.category}</span>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded text-xs font-semibold ${item.status === 'Live' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25' : 'bg-amber-500/10 text-amber-400 border border-amber-500/25'}`}>
                           {item.status}
                         </span>
                       </div>
-
-                      {/* Title & Description */}
-                      <h3 className="text-base sm:text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">
-                        {item.title}
-                      </h3>
-                      <p className="text-xs font-mono text-primary/90 mb-2">{item.subtitle}</p>
-                      <p className="text-xs text-gray-400 leading-relaxed mb-4 line-clamp-3">
-                        {item.description}
-                      </p>
-
-                      {/* Tags */}
+                      <h3 className="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">{item.title}</h3>
+                      <p className="text-xs text-primary mb-2 font-medium">{item.subtitle}</p>
+                      <p className="text-xs sm:text-sm text-gray-300 leading-relaxed mb-4 line-clamp-3">{item.description}</p>
                       {item.tags && item.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mb-5">
                           {item.tags.map((tag) => (
-                            <span key={tag} className="text-[10px] font-mono bg-white/5 text-gray-300 px-2 py-0.5 rounded border border-white/5">
-                              {tag}
-                            </span>
+                            <span key={tag} className="text-xs bg-white/5 text-gray-200 px-2.5 py-1 rounded border border-white/5">{tag}</span>
                           ))}
                         </div>
                       )}
                     </div>
 
-                    {/* Footer Actions */}
-                    <div className="pt-3.5 border-t border-white/10 flex items-center justify-between gap-2">
+                    <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-3">
                         {item.liveUrl && (
-                          <a
-                            href={item.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-primary hover:underline flex items-center gap-1 font-mono font-medium"
-                          >
+                          <a href={item.liveUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium">
                             Live Site <ExternalLink className="w-3 h-3" />
                           </a>
                         )}
-                        {item.githubUrl && (
-                          <a
-                            href={item.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-gray-400 hover:text-white flex items-center gap-1 font-mono transition-colors"
-                          >
-                            GitHub <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
                       </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => openProjectModal(item as ProjectItem)}
-                          className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-gray-300 hover:text-white transition-colors border border-white/10 flex items-center gap-1.5 text-xs font-mono cursor-pointer"
-                          title="Edit Project"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Edit</span>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => openProjectModal(item)} className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-200 hover:text-white transition-colors border border-white/10 flex items-center gap-1.5 text-xs font-medium cursor-pointer">
+                          <Edit3 className="w-3.5 h-3.5" /> Edit
                         </button>
                         {item.id && (
-                          <button
-                            onClick={() => handleDeleteProject(item.id)}
-                            className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors border border-white/10 cursor-pointer"
-                            title="Delete Project"
-                            aria-label="Delete project"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
+                          <button onClick={() => handleDeleteProject(item.id)} className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-gray-300 hover:text-red-400 transition-colors border border-white/10 cursor-pointer">
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -1156,74 +1166,158 @@ export default function AdminPage() {
         )}
 
         {/* ------------------------------------------------------------- */}
-        {/* TAB 3: CLIENT INQUIRIES & MESSAGES */}
+        {/* TAB 3: BLOG SECTION */}
         {/* ------------------------------------------------------------- */}
-        {activeTab === 'messages' && (
+        {activeTab === 'blogs' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            {/* Header & Filter Bar */}
             <div className="bg-[#0b0b0e] p-5 sm:p-7 rounded-3xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">Client Inquiries & Leads</h2>
-                <p className="text-xs text-gray-400 font-mono mt-0.5">
-                  Direct inquiries received from visitors via your portfolio contact form.
+                <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">Blog Section & SEO Articles</h2>
+                <p className="text-xs sm:text-sm text-gray-300 mt-0.5">
+                  Write stories and tutorials with ImgBB cover images for your website.
                 </p>
               </div>
 
-              {/* Unread / All Filter Pills */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                {blogs.length === 0 && (
+                  <button onClick={handleSeedDefaultBlogs} disabled={isSaving} className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs sm:text-sm flex items-center gap-2 border border-white/10 cursor-pointer">
+                    <FolderPlus className="w-4 h-4 text-purple-400" />
+                    <span className="hidden sm:inline">Load Sample Blog Posts</span>
+                  </button>
+                )}
+
+                <button onClick={() => openBlogModal()} className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-primary/20 cursor-pointer active:scale-98">
+                  <Plus className="w-4 h-4" />
+                  <span>Write New Post</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="relative">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={blogSearch}
+                onChange={(e) => setBlogSearch(e.target.value)}
+                placeholder="Search blog posts by title, category, or tags..."
+                className="w-full bg-[#0b0b0e] border border-white/10 rounded-2xl pl-10 pr-10 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary font-sans"
+              />
+              {blogSearch && (
+                <button onClick={() => setBlogSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {displayBlogsList.length === 0 ? (
+              <div className="bg-[#0b0b0e] rounded-3xl p-12 border border-white/10 text-center">
+                <BookOpen className="w-10 h-10 text-gray-500 mx-auto mb-3" />
+                <h3 className="text-base font-bold text-white mb-1">No Blog Posts Found</h3>
+                <p className="text-xs text-gray-300 max-w-sm mx-auto mb-4">No articles match your search query.</p>
+                <button onClick={() => setBlogSearch('')} className="px-4 py-2 rounded-xl bg-white/10 text-xs text-white font-medium">
+                  Clear Search
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {displayBlogsList.map((blog, index) => (
+                  <div key={blog.id || index} className="bg-[#0b0b0e] hover:bg-[#101014] rounded-3xl p-5 sm:p-6 border border-white/10 flex flex-col justify-between transition-all group shadow-md">
+                    <div>
+                      {blog.coverImage && (
+                        <div className="w-full h-36 rounded-2xl overflow-hidden mb-4 relative border border-white/10">
+                          <Image src={blog.coverImage} alt={blog.title} fill className="object-cover" unoptimized />
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <span className="text-xs px-3 py-1 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 font-semibold">
+                          {blog.category}
+                        </span>
+                        <span className={`px-2.5 py-1 rounded text-xs font-semibold ${blog.published ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25' : 'bg-amber-500/10 text-amber-400 border border-amber-500/25'}`}>
+                          {blog.published ? 'Published' : 'Draft'}
+                        </span>
+                      </div>
+
+                      <h3 className="text-base sm:text-lg font-bold text-white mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                        {blog.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-gray-300 leading-relaxed mb-4 line-clamp-3">
+                        {blog.excerpt}
+                      </p>
+
+                      {blog.tags && blog.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                          {blog.tags.map((tag) => (
+                            <span key={tag} className="text-xs bg-white/5 text-gray-200 px-2.5 py-1 rounded border border-white/5">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-2 text-xs">
+                      <span className="text-gray-400 flex items-center gap-1 font-medium">
+                        <Clock className="w-3.5 h-3.5 text-primary" /> {blog.readTime || '4 min read'}
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => openBlogModal(blog)} className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 text-gray-200 transition-colors border border-white/10 flex items-center gap-1 font-medium cursor-pointer">
+                          <Edit3 className="w-3.5 h-3.5" /> Edit
+                        </button>
+                        {blog.id && (
+                          <button onClick={() => handleDeleteBlog(blog.id)} className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-gray-300 hover:text-red-400 transition-colors border border-white/10 cursor-pointer">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 4: CLIENT INQUIRIES */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === 'messages' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="bg-[#0b0b0e] p-5 sm:p-7 rounded-3xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">Client Inquiries & Leads</h2>
+                <p className="text-xs sm:text-sm text-gray-300 mt-0.5">
+                  Direct messages received from visitors via your portfolio contact form.
+                </p>
+              </div>
+
               <div className="flex items-center gap-1.5 bg-white/5 p-1 rounded-2xl border border-white/10 self-start sm:self-auto">
-                <button
-                  onClick={() => setInquiryFilter('all')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
-                    inquiryFilter === 'all'
-                      ? 'bg-white text-black font-bold'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
+                <button onClick={() => setInquiryFilter('all')} className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${inquiryFilter === 'all' ? 'bg-white text-black' : 'text-gray-300 hover:text-white'}`}>
                   All ({inquiries.length})
                 </button>
-                <button
-                  onClick={() => setInquiryFilter('unread')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
-                    inquiryFilter === 'unread'
-                      ? 'bg-primary text-white font-bold'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
+                <button onClick={() => setInquiryFilter('unread')} className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${inquiryFilter === 'unread' ? 'bg-primary text-white' : 'text-gray-300 hover:text-white'}`}>
                   <span>Unread</span>
-                  {unreadMessagesCount > 0 && (
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  )}
+                  {unreadMessagesCount > 0 && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
                 </button>
-                <button
-                  onClick={() => setInquiryFilter('read')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
-                    inquiryFilter === 'read'
-                      ? 'bg-white text-black font-bold'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
+                <button onClick={() => setInquiryFilter('read')} className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${inquiryFilter === 'read' ? 'bg-white text-black' : 'text-gray-300 hover:text-white'}`}>
                   Read
                 </button>
               </div>
             </div>
 
-            {/* Empty State */}
             {inquiries.length === 0 ? (
-              <div className="bg-[#0b0b0e] rounded-3xl p-12 sm:p-16 border border-white/10 text-center">
-                <MessageSquare className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+              <div className="bg-[#0b0b0e] rounded-3xl p-16 border border-white/10 text-center">
+                <MessageSquare className="w-12 h-12 text-gray-500 mx-auto mb-3" />
                 <h3 className="text-base font-bold text-white mb-1">No Inquiries Yet</h3>
-                <p className="text-xs text-gray-400 max-w-sm mx-auto leading-relaxed">
-                  When potential clients submit the message form on your portfolio, their contact info and message will appear here in real time.
+                <p className="text-xs sm:text-sm text-gray-300 max-w-sm mx-auto leading-relaxed">
+                  When potential clients submit the message form on your portfolio, their contact info and message will appear here.
                 </p>
               </div>
             ) : (
-              /* Split Master-Detail Layout (Adaptive on Mobile) */
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                
-                {/* Master: Messages List */}
                 <div className={`lg:col-span-5 space-y-3 ${mobileMessageViewOpen ? 'hidden lg:block' : 'block'}`}>
                   {filteredInquiries.length === 0 ? (
-                    <div className="bg-[#0b0b0e] rounded-2xl p-8 text-center text-xs font-mono text-gray-500 border border-white/10">
+                    <div className="bg-[#0b0b0e] rounded-2xl p-8 text-center text-xs text-gray-400 border border-white/10">
                       No messages matching filter &ldquo;{inquiryFilter}&rdquo;.
                     </div>
                   ) : (
@@ -1232,178 +1326,109 @@ export default function AdminPage() {
                       return (
                         <div
                           key={inq.id}
-                          onClick={() => {
-                            setSelectedInquiry(inq);
-                            setMobileMessageViewOpen(true);
-                          }}
+                          onClick={() => { setSelectedInquiry(inq); setMobileMessageViewOpen(true); }}
                           className={`p-4 rounded-2xl border transition-all cursor-pointer group ${
-                            isSelected
-                              ? 'bg-primary/20 border-primary shadow-md'
-                              : !inq.read
-                              ? 'bg-[#111116] border-primary/40 hover:border-primary'
-                              : 'bg-[#0b0b0e] border-white/10 hover:border-white/20'
+                            isSelected ? 'bg-primary/25 border-primary shadow-md' : !inq.read ? 'bg-[#111116] border-primary/40 hover:border-primary' : 'bg-[#0b0b0e] border-white/10 hover:border-white/20'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2 mb-1.5">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <div className="w-7 h-7 rounded-full bg-white/10 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-8 h-8 rounded-full bg-white/10 text-white font-bold text-xs flex items-center justify-center shrink-0">
                                 {inq.name.charAt(0).toUpperCase()}
                               </div>
-                              <span className="font-bold text-xs sm:text-sm text-white truncate">
-                                {inq.name}
-                              </span>
+                              <span className="font-bold text-sm text-white truncate">{inq.name}</span>
                             </div>
-                            
                             <div className="flex items-center gap-2 shrink-0">
-                              <span className="text-[10px] font-mono text-gray-500">
-                                {formatDate(inq.createdAt)}
-                              </span>
-                              {!inq.read && (
-                                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                              )}
+                              <span className="text-xs text-gray-400">{formatDate(inq.createdAt)}</span>
+                              {!inq.read && <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
                             </div>
                           </div>
-
-                          {inq.service && (
-                            <span className="text-[10px] font-mono text-primary font-medium block mb-1">
-                              {inq.service}
-                            </span>
-                          )}
-
-                          <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
-                            {inq.message}
-                          </p>
+                          {inq.service && <span className="text-xs text-primary font-semibold block mb-1">{inq.service}</span>}
+                          <p className="text-xs sm:text-sm text-gray-300 line-clamp-2 leading-relaxed">{inq.message}</p>
                         </div>
                       );
                     })
                   )}
                 </div>
 
-                {/* Detail: Message View */}
                 <div className={`lg:col-span-7 ${!mobileMessageViewOpen ? 'hidden lg:block' : 'block'}`}>
                   {selectedInquiry ? (
                     <div className="bg-[#0b0b0e] rounded-3xl p-5 sm:p-8 border border-white/10 space-y-6 shadow-xl sticky top-24">
-                      {/* Mobile Back Button */}
-                      <button
-                        onClick={() => setMobileMessageViewOpen(false)}
-                        className="lg:hidden flex items-center gap-1.5 text-xs font-mono text-primary pb-2"
-                      >
-                        <ArrowLeft className="w-4 h-4" />
-                        <span>Back to all inquiries</span>
+                      <button onClick={() => setMobileMessageViewOpen(false)} className="lg:hidden flex items-center gap-1.5 text-xs text-primary pb-2 font-semibold">
+                        <ArrowLeft className="w-4 h-4" /> Back to all inquiries
                       </button>
 
-                      {/* Header */}
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b border-white/10">
                         <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary/20 text-primary font-bold text-sm flex items-center justify-center shrink-0 border border-primary/30">
+                          <div className="w-11 h-11 rounded-full bg-primary/20 text-primary font-bold text-base flex items-center justify-center shrink-0 border border-primary/30">
                             {selectedInquiry.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="text-base sm:text-lg font-bold text-white">
-                                {selectedInquiry.name}
-                              </h3>
+                            <div className="flex items-center gap-2.5 flex-wrap">
+                              <h3 className="text-lg font-bold text-white">{selectedInquiry.name}</h3>
                               {selectedInquiry.service && (
-                                <span className="text-[10px] font-mono bg-primary/15 text-primary border border-primary/30 px-2 py-0.5 rounded font-semibold">
+                                <span className="text-xs bg-primary/15 text-primary border border-primary/30 px-2.5 py-0.5 rounded-full font-semibold">
                                   {selectedInquiry.service}
                                 </span>
                               )}
                             </div>
-                            <span className="text-[11px] font-mono text-gray-500 block mt-0.5">
-                              Received {formatDate(selectedInquiry.createdAt)}
-                            </span>
+                            <span className="text-xs text-gray-400 block mt-1">Received {formatDate(selectedInquiry.createdAt)}</span>
                           </div>
                         </div>
 
-                        {/* Top Action Buttons */}
                         <div className="flex items-center gap-2 self-end sm:self-auto">
-                          <button
-                            onClick={() => handleToggleInquiryRead(selectedInquiry)}
-                            className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-xs font-mono text-gray-300 transition-colors border border-white/10 cursor-pointer"
-                          >
+                          <button onClick={() => handleToggleInquiryRead(selectedInquiry)} className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 text-xs text-gray-200 transition-colors border border-white/10 cursor-pointer">
                             {selectedInquiry.read ? 'Mark Unread' : 'Mark Read'}
                           </button>
-                          <button
-                            onClick={() => handleDeleteInquiry(selectedInquiry.id)}
-                            className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors border border-white/10 cursor-pointer"
-                            title="Delete Message"
-                            aria-label="Delete inquiry"
-                          >
+                          <button onClick={() => handleDeleteInquiry(selectedInquiry.id)} className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-gray-300 hover:text-red-400 transition-colors border border-white/10 cursor-pointer">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
 
-                      {/* Contact Info Badges */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {selectedInquiry.email && (
-                          <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <Mail className="w-3.5 h-3.5 text-primary shrink-0" />
-                              <span className="text-xs font-mono text-gray-300 truncate">
-                                {selectedInquiry.email}
-                              </span>
+                          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <Mail className="w-4 h-4 text-primary shrink-0" />
+                              <span className="text-xs sm:text-sm text-gray-200 truncate">{selectedInquiry.email}</span>
                             </div>
-                            <button
-                              onClick={() => copyToClipboard(selectedInquiry.email!, 'email')}
-                              className="p-1 rounded-md text-gray-400 hover:text-white"
-                              title="Copy email"
-                            >
+                            <button onClick={() => copyToClipboard(selectedInquiry.email!, 'email')} className="p-1.5 rounded-lg text-gray-300 hover:text-white bg-white/5">
                               <Copy className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         )}
 
                         {selectedInquiry.phone && (
-                          <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                              <span className="text-xs font-mono text-emerald-400 truncate">
-                                {selectedInquiry.phone}
-                              </span>
+                          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
+                              <span className="text-xs sm:text-sm text-emerald-400 truncate">{selectedInquiry.phone}</span>
                             </div>
-                            <button
-                              onClick={() => copyToClipboard(selectedInquiry.phone!, 'phone number')}
-                              className="p-1 rounded-md text-gray-400 hover:text-white"
-                              title="Copy phone"
-                            >
+                            <button onClick={() => copyToClipboard(selectedInquiry.phone!, 'phone number')} className="p-1.5 rounded-lg text-gray-300 hover:text-white bg-white/5">
                               <Copy className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         )}
                       </div>
 
-                      {/* Message Content */}
                       <div>
-                        <span className="text-xs font-mono text-gray-400 block mb-2">Message</span>
-                        <div className="p-4 sm:p-5 rounded-2xl bg-black/50 border border-white/10 text-xs sm:text-sm text-gray-200 leading-relaxed whitespace-pre-wrap font-sans">
+                        <span className="text-xs text-gray-400 block mb-2 font-medium">Message</span>
+                        <div className="p-5 rounded-2xl bg-black/50 border border-white/10 text-sm sm:text-base text-gray-200 leading-relaxed whitespace-pre-wrap font-sans">
                           {selectedInquiry.message}
                         </div>
                       </div>
 
-                      {/* Quick Reply Channels */}
                       <div className="pt-2">
-                        <span className="text-xs font-mono text-gray-400 block mb-2.5">Direct Reply Actions</span>
-                        <div className="flex flex-wrap gap-2.5">
+                        <span className="text-xs text-gray-400 block mb-3 font-medium">Direct Reply Actions</span>
+                        <div className="flex flex-wrap gap-3">
                           {selectedInquiry.phone && (
-                            <a
-                              href={`https://wa.me/${selectedInquiry.phone.replace(/[^0-9]/g, '')}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 sm:flex-none px-4 py-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-lg"
-                            >
-                              <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                              </svg>
+                            <a href={`https://wa.me/${selectedInquiry.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-none px-5 py-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-lg">
                               <span>Reply on WhatsApp</span>
                             </a>
                           )}
-
                           {selectedInquiry.email && (
-                            <a
-                              href={`mailto:${selectedInquiry.email}?subject=Regarding your portfolio inquiry&body=Hi ${selectedInquiry.name},\n\nThank you for reaching out!`}
-                              className="flex-1 sm:flex-none px-4 py-3 rounded-xl bg-primary hover:bg-blue-600 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-lg"
-                            >
+                            <a href={`mailto:${selectedInquiry.email}?subject=Regarding your portfolio inquiry&body=Hi ${selectedInquiry.name},\n\nThank you for reaching out!`} className="flex-1 sm:flex-none px-5 py-3 rounded-xl bg-primary hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-lg">
                               <Mail className="w-4 h-4 shrink-0" />
                               <span>Reply by Email</span>
                             </a>
@@ -1412,8 +1437,8 @@ export default function AdminPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-[#0b0b0e] rounded-3xl p-16 border border-white/10 text-center text-gray-500 text-xs font-mono">
-                      <MessageSquare className="w-10 h-10 text-gray-700 mx-auto mb-3" />
+                    <div className="bg-[#0b0b0e] rounded-3xl p-16 border border-white/10 text-center text-gray-400 text-sm">
+                      <MessageSquare className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                       Select an inquiry from the list on the left to read and reply.
                     </div>
                   )}
@@ -1424,88 +1449,99 @@ export default function AdminPage() {
         )}
 
         {/* ------------------------------------------------------------- */}
-        {/* TAB 4: PROFILE & SETTINGS */}
+        {/* TAB 5: SETTINGS & IMGBB API CONFIGURATION */}
         {/* ------------------------------------------------------------- */}
         {activeTab === 'settings' && (
           <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
-            <div className="bg-[#0b0b0e] rounded-3xl p-5 sm:p-8 border border-white/10 shadow-xl">
-              <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+            <div className="bg-[#0b0b0e] rounded-3xl p-6 sm:p-10 border border-white/10 shadow-xl space-y-6">
+              <div className="flex items-center justify-between pb-5 border-b border-white/10">
                 <div>
-                  <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">Portfolio Configuration</h2>
-                  <p className="text-xs text-gray-400 font-mono mt-0.5">
-                    Update WhatsApp numbers, official email, and live announcements.
+                  <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">ImgBB API & Portfolio Settings</h2>
+                  <p className="text-xs sm:text-sm text-gray-300 mt-1">
+                    Configure your ImgBB API key to enable direct phone camera and gallery image uploading across all projects and blog posts.
                   </p>
                 </div>
-                <Sliders className="w-5 h-5 text-primary" />
+                <ImageIcon className="w-6 h-6 text-primary shrink-0" />
+              </div>
+
+              {/* ImgBB API Key Banner */}
+              <div className="p-5 rounded-2xl bg-blue-500/10 border border-blue-500/25 space-y-2">
+                <div className="flex items-center gap-2 text-blue-300 font-semibold text-sm">
+                  <Key className="w-4 h-4 text-blue-400" />
+                  <span>How ImgBB Image Uploading Works</span>
+                </div>
+                <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                  Enter your free ImgBB API key below. Once saved, whenever you add or edit a Project or Blog Post, you can click <strong className="text-white">&ldquo;Upload Image&rdquo;</strong> to instantly upload any photo from your phone or PC. It generates a permanent hosted image URL automatically!
+                </p>
               </div>
 
               <form onSubmit={handleSaveSettings} className="space-y-5">
-                {/* Phone */}
+                {/* ImgBB API Key Input */}
                 <div>
-                  <label className="block text-xs font-mono text-gray-300 mb-1.5">
-                    Display Phone Number
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">
+                    ImgBB API Key *
                   </label>
                   <input
                     type="text"
-                    value={settings.phone}
-                    onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
-                    className="w-full bg-[#050505] border border-white/10 rounded-2xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors font-mono"
-                    placeholder="+265 98 706 6051"
+                    value={settings.imgbbApiKey || ''}
+                    onChange={(e) => setSettings({ ...settings, imgbbApiKey: e.target.value })}
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary font-mono"
+                    placeholder="e.g. a1b2c3d4e5f6g7h8i9j0..."
                   />
-                </div>
-
-                {/* WhatsApp */}
-                <div>
-                  <label className="block text-xs font-mono text-gray-300 mb-1.5">
-                    WhatsApp Direct Number (Digits only, e.g. 265987066051)
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.whatsapp}
-                    onChange={(e) => setSettings({ ...settings, whatsapp: e.target.value })}
-                    className="w-full bg-[#050505] border border-white/10 rounded-2xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors font-mono"
-                    placeholder="265987066051"
-                  />
-                  <span className="text-[10px] text-gray-500 font-mono mt-1 block">
-                    Used for automatic WhatsApp direct chat links across the site.
+                  <span className="text-xs text-gray-400 mt-1.5 block">
+                    Get your free API key instantly at <a href="https://api.imgbb.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">api.imgbb.com</a>.
                   </span>
                 </div>
 
-                {/* Email */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">Display Phone Number</label>
+                    <input
+                      type="text"
+                      value={settings.phone}
+                      onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
+                      className="w-full bg-[#050505] border border-white/15 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary font-mono"
+                      placeholder="+265 98 706 6051"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">WhatsApp Direct Number (Digits only)</label>
+                    <input
+                      type="text"
+                      value={settings.whatsapp}
+                      onChange={(e) => setSettings({ ...settings, whatsapp: e.target.value })}
+                      className="w-full bg-[#050505] border border-white/15 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary font-mono"
+                      placeholder="265987066051"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-xs font-mono text-gray-300 mb-1.5">
-                    Official Email Address
-                  </label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">Official Email Address</label>
                   <input
                     type="email"
                     value={settings.email}
                     onChange={(e) => setSettings({ ...settings, email: e.target.value })}
-                    className="w-full bg-[#050505] border border-white/10 rounded-2xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors font-mono"
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary font-mono"
                     placeholder="peterleodamiano@gmail.com"
                   />
                 </div>
 
-                {/* Availability Headline */}
                 <div>
-                  <label className="block text-xs font-mono text-gray-300 mb-1.5">
-                    Current Availability Status
-                  </label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">Current Availability Status</label>
                   <input
                     type="text"
                     value={settings.availabilityStatus}
                     onChange={(e) => setSettings({ ...settings, availabilityStatus: e.target.value })}
-                    className="w-full bg-[#050505] border border-white/10 rounded-2xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors"
-                    placeholder="Available for high-stakes projects & consultations"
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary"
                   />
                 </div>
 
-                {/* Announcement Box */}
                 <div className="pt-4 border-t border-white/10">
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-mono text-gray-300 font-medium">
-                      Homepage Announcement Notice
-                    </label>
-                    <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer select-none">
+                    <label className="text-xs sm:text-sm font-semibold text-gray-200">Homepage Announcement Notice</label>
+                    <label className="flex items-center gap-2.5 text-xs text-gray-300 cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={settings.announcementActive}
@@ -1519,8 +1555,7 @@ export default function AdminPage() {
                     rows={3}
                     value={settings.announcementText}
                     onChange={(e) => setSettings({ ...settings, announcementText: e.target.value })}
-                    className="w-full bg-[#050505] border border-white/10 rounded-2xl p-4 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors font-sans"
-                    placeholder="e.g. Now building Mobile Applications using Flutter, C++, Kotlin, and Python..."
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-primary font-sans"
                   />
                 </div>
 
@@ -1528,10 +1563,10 @@ export default function AdminPage() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-primary hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 cursor-pointer active:scale-98"
+                    className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-primary hover:bg-blue-600 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/25 cursor-pointer active:scale-98"
                   >
                     <Check className="w-4 h-4" />
-                    <span>{isSaving ? 'Saving Changes...' : 'Save Configuration'}</span>
+                    <span>{isSaving ? 'Saving Changes...' : 'Save Settings & API Key'}</span>
                   </button>
                 </div>
               </form>
@@ -1541,66 +1576,44 @@ export default function AdminPage() {
       </main>
 
       {/* ------------------------------------------------------------- */}
-      {/* MOBILE BOTTOM NAVIGATION BAR (Fixed at bottom on phones) */}
+      {/* MOBILE BOTTOM NAVIGATION BAR */}
       {/* ------------------------------------------------------------- */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#08080a]/95 backdrop-blur-xl border-t border-white/10 px-2 py-2 flex items-center justify-around shadow-2xl">
-        <button
-          onClick={() => setActiveTab('overview')}
-          className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all cursor-pointer ${
-            activeTab === 'overview' ? 'text-primary font-bold' : 'text-gray-400'
-          }`}
-        >
+        <button onClick={() => setActiveTab('overview')} className={`flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl transition-all cursor-pointer ${activeTab === 'overview' ? 'text-primary font-bold' : 'text-gray-400'}`}>
           <Layers className="w-5 h-5 mb-0.5" />
           <span className="text-[10px]">Overview</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab('projects')}
-          className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all cursor-pointer ${
-            activeTab === 'projects' ? 'text-primary font-bold' : 'text-gray-400'
-          }`}
-        >
+        <button onClick={() => setActiveTab('projects')} className={`flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl transition-all cursor-pointer ${activeTab === 'projects' ? 'text-primary font-bold' : 'text-gray-400'}`}>
           <Cpu className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">Projects</span>
+          <span className="text-[10px]">Systems</span>
         </button>
 
-        <button
-          onClick={() => {
-            setActiveTab('messages');
-            setMobileMessageViewOpen(false);
-          }}
-          className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all relative cursor-pointer ${
-            activeTab === 'messages' ? 'text-primary font-bold' : 'text-gray-400'
-          }`}
-        >
+        <button onClick={() => setActiveTab('blogs')} className={`flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl transition-all cursor-pointer ${activeTab === 'blogs' ? 'text-primary font-bold' : 'text-gray-400'}`}>
+          <BookOpen className="w-5 h-5 mb-0.5" />
+          <span className="text-[10px]">Blog</span>
+        </button>
+
+        <button onClick={() => { setActiveTab('messages'); setMobileMessageViewOpen(false); }} className={`flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl transition-all relative cursor-pointer ${activeTab === 'messages' ? 'text-primary font-bold' : 'text-gray-400'}`}>
           <div className="relative">
             <MessageSquare className="w-5 h-5 mb-0.5" />
-            {unreadMessagesCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full animate-pulse ring-2 ring-[#08080a]" />
-            )}
+            {unreadMessagesCount > 0 && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full animate-pulse ring-2 ring-[#08080a]" />}
           </div>
           <span className="text-[10px]">Inquiries</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all cursor-pointer ${
-            activeTab === 'settings' ? 'text-primary font-bold' : 'text-gray-400'
-          }`}
-        >
+        <button onClick={() => setActiveTab('settings')} className={`flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl transition-all cursor-pointer ${activeTab === 'settings' ? 'text-primary font-bold' : 'text-gray-400'}`}>
           <Sliders className="w-5 h-5 mb-0.5" />
           <span className="text-[10px]">Settings</span>
         </button>
       </nav>
 
       {/* ------------------------------------------------------------- */}
-      {/* PROJECT ADD/EDIT MODAL (Mobile Bottom Sheet / Desktop Modal) */}
+      {/* PROJECT ADD/EDIT MODAL WITH IMGBB UPLOAD */}
       {/* ------------------------------------------------------------- */}
       {isProjectModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
           <div className="bg-[#0b0b0e] border-t sm:border border-white/15 rounded-t-[2rem] sm:rounded-3xl p-5 sm:p-8 max-w-xl w-full shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto scrollbar-none">
-            
-            {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-primary" />
@@ -1608,55 +1621,42 @@ export default function AdminPage() {
                   {editingProject ? 'Edit Portfolio System' : 'Add New Portfolio System'}
                 </h3>
               </div>
-              <button
-                onClick={() => setIsProjectModalOpen(false)}
-                className="p-1.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                aria-label="Close modal"
-              >
+              <button onClick={() => setIsProjectModalOpen(false)} className="p-1.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSaveProject} className="space-y-4">
-              {/* Title */}
               <div>
-                <label className="block text-xs font-mono text-gray-300 mb-1">
-                  System / Project Title *
-                </label>
+                <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">System / Project Title *</label>
                 <input
                   type="text"
                   required
                   value={projectForm.title}
                   onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
-                  className="w-full bg-[#050505] border border-white/10 rounded-2xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors font-sans"
+                  className="w-full bg-[#050505] border border-white/15 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary font-sans"
                   placeholder="e.g., Automatic Flood Alert System"
                 />
               </div>
 
-              {/* Subtitle */}
               <div>
-                <label className="block text-xs font-mono text-gray-300 mb-1">
-                  Subtitle / One-Line Headline
-                </label>
+                <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">Subtitle / One-Line Headline</label>
                 <input
                   type="text"
                   value={projectForm.subtitle}
                   onChange={(e) => setProjectForm({ ...projectForm, subtitle: e.target.value })}
-                  className="w-full bg-[#050505] border border-white/10 rounded-2xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors font-mono text-primary"
+                  className="w-full bg-[#050505] border border-white/15 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary font-sans text-primary font-medium"
                   placeholder="e.g., 4-Way Early Warning & Community Safety App"
                 />
               </div>
 
-              {/* Category and Status Grid */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-mono text-gray-300 mb-1">
-                    Category
-                  </label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">Category</label>
                   <select
                     value={projectForm.category}
                     onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value as any })}
-                    className="w-full bg-[#050505] border border-white/10 rounded-2xl px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-3 text-sm text-white focus:outline-none focus:border-primary cursor-pointer font-sans"
                   >
                     <option value="web">Web Application</option>
                     <option value="mobile">Mobile App</option>
@@ -1667,13 +1667,11 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono text-gray-300 mb-1">
-                    Status
-                  </label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">Status</label>
                   <select
                     value={projectForm.status}
                     onChange={(e) => setProjectForm({ ...projectForm, status: e.target.value as any })}
-                    className="w-full bg-[#050505] border border-white/10 rounded-2xl px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-3 text-sm text-white focus:outline-none focus:border-primary cursor-pointer font-sans"
                   >
                     <option value="Live">Live</option>
                     <option value="In Progress">In Progress</option>
@@ -1683,131 +1681,130 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Description */}
+              {/* ImgBB Image Upload for Project */}
               <div>
-                <label className="block text-xs font-mono text-gray-300 mb-1">
-                  Description *
+                <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">
+                  Project Screenshot / Cover Image (ImgBB)
                 </label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="url"
+                    value={projectForm.imageUrl || ''}
+                    onChange={(e) => setProjectForm({ ...projectForm, imageUrl: e.target.value })}
+                    className="flex-1 bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-mono truncate"
+                    placeholder="https://i.ibb.co/... or upload below"
+                  />
+                  <label className="px-4 py-2.5 rounded-2xl bg-primary hover:bg-blue-600 text-white text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shrink-0">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{isUploadingImage ? 'Uploading...' : 'Upload Image'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setIsUploadingImage(true);
+                        try {
+                          const url = await uploadToImgBB(file);
+                          setProjectForm({ ...projectForm, imageUrl: url });
+                          showToast('Image uploaded successfully via ImgBB!');
+                        } catch (err: any) {
+                          alert(err.message || 'Failed to upload image.');
+                        } finally {
+                          setIsUploadingImage(false);
+                          e.target.value = '';
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {projectForm.imageUrl && (
+                  <div className="mt-2 w-full h-24 rounded-xl overflow-hidden relative border border-white/15">
+                    <Image src={projectForm.imageUrl} alt="Preview" fill className="object-cover" unoptimized />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">Description *</label>
                 <textarea
                   rows={3}
                   required
                   value={projectForm.description}
                   onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
-                  className="w-full bg-[#050505] border border-white/10 rounded-2xl p-3.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors font-sans leading-relaxed"
-                  placeholder="Explain what this system does in clear, simple words..."
+                  className="w-full bg-[#050505] border border-white/15 rounded-2xl p-3.5 text-sm text-white focus:outline-none focus:border-primary font-sans leading-relaxed"
+                  placeholder="Explain what this system does..."
                 />
               </div>
 
-              {/* Live URL & GitHub URL */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-mono text-gray-300 mb-1">
-                    Live Demo / App URL
-                  </label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">Live Demo URL</label>
                   <input
                     type="url"
                     value={projectForm.liveUrl || ''}
                     onChange={(e) => setProjectForm({ ...projectForm, liveUrl: e.target.value })}
-                    className="w-full bg-[#050505] border border-white/10 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors font-mono"
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-mono"
                     placeholder="https://..."
                   />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-mono text-gray-300 mb-1">
-                    GitHub Repo URL
-                  </label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">GitHub Repo URL</label>
                   <input
                     type="url"
                     value={projectForm.githubUrl || ''}
                     onChange={(e) => setProjectForm({ ...projectForm, githubUrl: e.target.value })}
-                    className="w-full bg-[#050505] border border-white/10 rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors font-mono"
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-mono"
                     placeholder="https://github.com/..."
                   />
                 </div>
               </div>
 
-              {/* Tags Editor */}
               <div>
-                <label className="block text-xs font-mono text-gray-300 mb-1.5">
-                  Technologies & Tags
-                </label>
-                
-                {/* Popular tag quick click pills */}
+                <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">Technologies & Tags</label>
                 <div className="flex flex-wrap gap-1.5 mb-2.5">
                   {POPULAR_TAGS.map(t => (
                     <button
                       key={t}
                       type="button"
                       onClick={() => handleAddTag(t)}
-                      className={`text-[10px] font-mono px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
-                        projectForm.tags.includes(t)
-                          ? 'bg-primary/20 text-primary border-primary/40'
-                          : 'bg-white/5 text-gray-400 border-white/10 hover:text-white'
+                      className={`text-xs px-2.5 py-1 rounded-lg border transition-all cursor-pointer font-medium ${
+                        projectForm.tags.includes(t) ? 'bg-primary/25 text-primary border-primary/50' : 'bg-white/5 text-gray-300 border-white/10 hover:text-white'
                       }`}
                     >
                       + {t}
                     </button>
                   ))}
                 </div>
-
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddTag();
-                      }
-                    }}
-                    className="flex-1 bg-[#050505] border border-white/10 rounded-2xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors font-mono"
-                    placeholder="Type custom tag & press Enter"
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); } }}
+                    className="flex-1 bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-primary font-sans"
+                    placeholder="Custom tag & press Enter"
                   />
-                  <button
-                    type="button"
-                    onClick={() => handleAddTag()}
-                    className="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-mono font-medium transition-colors cursor-pointer"
-                  >
+                  <button type="button" onClick={() => handleAddTag()} className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold">
                     Add
                   </button>
                 </div>
-
-                <div className="flex flex-wrap gap-1.5 min-h-[28px]">
+                <div className="flex flex-wrap gap-1.5 min-h-[32px]">
                   {projectForm.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 border border-white/10 text-xs font-mono text-gray-200"
-                    >
+                    <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 border border-white/10 text-xs font-medium text-gray-200">
                       {tag}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTag(tag)}
-                        className="text-gray-400 hover:text-red-400 font-bold ml-1 cursor-pointer"
-                        aria-label={`Remove tag ${tag}`}
-                      >
-                        ×
-                      </button>
+                      <button type="button" onClick={() => handleRemoveTag(tag)} className="text-gray-400 hover:text-red-400 font-bold ml-1 cursor-pointer">×</button>
                     </span>
                   ))}
                 </div>
               </div>
 
-              {/* Modal Actions */}
-              <div className="flex justify-end gap-2.5 pt-4 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setIsProjectModalOpen(false)}
-                  className="px-5 py-2.5 rounded-2xl bg-white/5 text-gray-400 hover:text-white text-xs font-mono transition-colors cursor-pointer"
-                >
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                <button type="button" onClick={() => setIsProjectModalOpen(false)} className="px-5 py-2.5 rounded-2xl bg-white/5 text-gray-300 hover:text-white text-xs sm:text-sm font-semibold">
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-6 py-2.5 rounded-2xl bg-primary hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-primary/20 transition-all cursor-pointer active:scale-98"
-                >
+                <button type="submit" disabled={isSaving} className="px-6 py-2.5 rounded-2xl bg-primary hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-primary/20 cursor-pointer active:scale-98">
                   {isSaving ? 'Saving...' : 'Save System'}
                 </button>
               </div>
@@ -1817,11 +1814,230 @@ export default function AdminPage() {
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* Toast Notification */}
+      {/* BLOG ADD/EDIT MODAL WITH IMGBB UPLOAD */}
       {/* ------------------------------------------------------------- */}
+      {isBlogModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
+          <div className="bg-[#0b0b0e] border-t sm:border border-white/15 rounded-t-[2rem] sm:rounded-3xl p-5 sm:p-8 max-w-2xl w-full shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto scrollbar-none">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-purple-400" />
+                <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                  {editingBlog ? 'Edit Blog Post & SEO Article' : 'Write New Blog Post'}
+                </h3>
+              </div>
+              <button onClick={() => setIsBlogModalOpen(false)} className="p-1.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveBlog} className="space-y-4">
+              <div>
+                <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">Article Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={blogForm.title}
+                  onChange={(e) => handleTitleChangeForSlug(e.target.value)}
+                  className="w-full bg-[#050505] border border-white/15 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary font-sans font-semibold"
+                  placeholder="e.g. Building Scalable Web Apps with Next.js"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">URL Slug (SEO)</label>
+                  <input
+                    type="text"
+                    required
+                    value={blogForm.slug}
+                    onChange={(e) => setBlogForm({ ...blogForm, slug: e.target.value })}
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-2.5 text-xs text-purple-300 font-mono focus:outline-none focus:border-primary"
+                    placeholder="building-scalable-web-apps"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">Category</label>
+                  <input
+                    type="text"
+                    value={blogForm.category}
+                    onChange={(e) => setBlogForm({ ...blogForm, category: e.target.value })}
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-2.5 text-xs text-white font-sans font-medium focus:outline-none focus:border-primary"
+                    placeholder="Software Engineering"
+                  />
+                </div>
+              </div>
+
+              {/* ImgBB Cover Image for Blog */}
+              <div>
+                <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">
+                  Article Cover Image (ImgBB)
+                </label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="url"
+                    value={blogForm.coverImage || ''}
+                    onChange={(e) => setBlogForm({ ...blogForm, coverImage: e.target.value })}
+                    className="flex-1 bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-mono truncate"
+                    placeholder="https://i.ibb.co/... or upload below"
+                  />
+                  <label className="px-4 py-2.5 rounded-2xl bg-primary hover:bg-blue-600 text-white text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shrink-0">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{isUploadingImage ? 'Uploading...' : 'Upload Cover'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setIsUploadingImage(true);
+                        try {
+                          const url = await uploadToImgBB(file);
+                          setBlogForm({ ...blogForm, coverImage: url });
+                          showToast('Cover image uploaded successfully via ImgBB!');
+                        } catch (err: any) {
+                          alert(err.message || 'Failed to upload image.');
+                        } finally {
+                          setIsUploadingImage(false);
+                          e.target.value = '';
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {blogForm.coverImage && (
+                  <div className="mt-2 w-full h-24 rounded-xl overflow-hidden relative border border-white/15">
+                    <Image src={blogForm.coverImage} alt="Cover Preview" fill className="object-cover" unoptimized />
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">Read Time</label>
+                  <input
+                    type="text"
+                    value={blogForm.readTime}
+                    onChange={(e) => setBlogForm({ ...blogForm, readTime: e.target.value })}
+                    className="w-full bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-2.5 text-xs text-white font-sans focus:outline-none focus:border-primary"
+                    placeholder="4 min read"
+                  />
+                </div>
+
+                <div className="flex items-center pt-5">
+                  <label className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-white cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={blogForm.published}
+                      onChange={(e) => setBlogForm({ ...blogForm, published: e.target.checked })}
+                      className="accent-primary w-4 h-4 rounded cursor-pointer"
+                    />
+                    <span>Publish Immediately</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">Short Excerpt *</label>
+                <textarea
+                  rows={2}
+                  required
+                  value={blogForm.excerpt}
+                  onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
+                  className="w-full bg-[#050505] border border-white/15 rounded-2xl p-3 text-xs sm:text-sm text-white focus:outline-none focus:border-primary font-sans leading-relaxed"
+                  placeholder="Summarize the article in 1-2 sentences..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">Full Article Content *</label>
+                <textarea
+                  rows={8}
+                  required
+                  value={blogForm.content}
+                  onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })}
+                  className="w-full bg-[#050505] border border-white/15 rounded-2xl p-3.5 text-xs sm:text-sm text-white focus:outline-none focus:border-primary font-sans leading-relaxed"
+                  placeholder="Write your article paragraphs here..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-2">Article Tags</label>
+                <div className="flex flex-wrap gap-1.5 mb-2.5">
+                  {POPULAR_TAGS.map(t => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => {
+                        if (!blogForm.tags.includes(t)) {
+                          setBlogForm({ ...blogForm, tags: [...blogForm.tags, t] });
+                        }
+                      }}
+                      className="text-xs px-2.5 py-1 rounded-lg border bg-white/5 text-gray-300 border-white/10 hover:text-white cursor-pointer font-medium"
+                    >
+                      + {t}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={blogTagInput}
+                    onChange={(e) => setBlogTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (blogTagInput.trim() && !blogForm.tags.includes(blogTagInput.trim())) {
+                          setBlogForm({ ...blogForm, tags: [...blogForm.tags, blogTagInput.trim()] });
+                          setBlogTagInput('');
+                        }
+                      }
+                    }}
+                    className="flex-1 bg-[#050505] border border-white/15 rounded-2xl px-3.5 py-2.5 text-sm text-white font-sans focus:outline-none focus:border-primary"
+                    placeholder="Add custom tag & press Enter"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (blogTagInput.trim() && !blogForm.tags.includes(blogTagInput.trim())) {
+                        setBlogForm({ ...blogForm, tags: [...blogForm.tags, blogTagInput.trim()] });
+                        setBlogTagInput('');
+                      }
+                    }}
+                    className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5 min-h-[32px]">
+                  {blogForm.tags.map((tag) => (
+                    <span key={tag} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 border border-white/10 text-xs font-medium text-gray-200">
+                      {tag}
+                      <button type="button" onClick={() => handleRemoveBlogTag(tag)} className="text-gray-400 hover:text-red-400 font-bold ml-1 cursor-pointer">×</button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                <button type="button" onClick={() => setIsBlogModalOpen(false)} className="px-5 py-2.5 rounded-2xl bg-white/5 text-gray-300 hover:text-white text-xs sm:text-sm font-semibold">
+                  Cancel
+                </button>
+                <button type="submit" disabled={isSaving} className="px-6 py-2.5 rounded-2xl bg-primary hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-primary/20 cursor-pointer active:scale-98">
+                  {isSaving ? 'Saving...' : 'Publish Article'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-20 md:bottom-8 right-4 sm:right-8 z-50 bg-[#111116] border border-white/20 text-white px-4 sm:px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 font-mono text-xs animate-in fade-in slide-in-from-bottom-4">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="fixed bottom-20 md:bottom-8 right-4 sm:right-8 z-50 bg-[#111116] border border-white/20 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 font-sans text-xs sm:text-sm font-medium animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}

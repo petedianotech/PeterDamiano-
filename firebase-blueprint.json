@@ -11,6 +11,7 @@
         "category": { "type": "string", "enum": ["web", "mobile", "ai", "hardware", "other"], "description": "Category" },
         "liveUrl": { "type": "string", "description": "Live URL or demo link" },
         "githubUrl": { "type": "string", "description": "GitHub repository URL" },
+        "imageUrl": { "type": "string", "description": "Screenshot or cover image URL from ImgBB" },
         "status": { "type": "string", "enum": ["Live", "In Progress", "Beta", "Restricted"], "description": "Current status" },
         "tags": { "type": "array", "items": { "type": "string" }, "description": "Technologies and badges" },
         "order": { "type": "number", "description": "Display order" },
@@ -18,6 +19,25 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "description", "status"]
+    },
+    "blogs": {
+      "title": "Blog Posts & Articles",
+      "description": "Articles and thoughts written by Peter Damiano",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Blog post title" },
+        "slug": { "type": "string", "description": "URL-friendly slug" },
+        "excerpt": { "type": "string", "description": "Short summary" },
+        "content": { "type": "string", "description": "Full article markdown or text content" },
+        "coverImage": { "type": "string", "description": "Cover image URL from ImgBB" },
+        "category": { "type": "string", "description": "Blog category" },
+        "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags" },
+        "published": { "type": "boolean", "description": "Publication status" },
+        "readTime": { "type": "string", "description": "Estimated read time e.g. 4 min read" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "slug", "content", "published"]
     },
     "inquiries": {
       "title": "Client Contact Messages & Leads",
@@ -46,6 +66,7 @@
         "availabilityStatus": { "type": "string" },
         "announcementText": { "type": "string" },
         "announcementActive": { "type": "boolean" },
+        "imgbbApiKey": { "type": "string" },
         "hourlyRateOrPricing": { "type": "string" }
       }
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import SocialLinksSection, { SOCIAL_PLATFORMS } from '@/components/SocialLinks';
 import { 
@@ -26,13 +26,224 @@ import {
   Sparkles,
   MessageCircle,
   Tv,
-  Trophy
+  Trophy,
+  Clock,
+  ChevronRight,
+  X,
+  Copy
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore';
+
+function BlogSection() {
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [selectedBlog, setSelectedBlog] = useState<any | null>(null);
+
+  useEffect(() => {
+    const unsub = onSnapshot(query(collection(db, 'blogs'), orderBy('createdAt', 'desc')), (snapshot) => {
+      const list: any[] = [];
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.published !== false) {
+          list.push({ id: docSnap.id, ...data });
+        }
+      });
+      setBlogs(list);
+    }, (err) => {
+      console.warn('Blog fetch fallback:', err.message);
+    });
+    return () => unsub();
+  }, []);
+
+  const displayBlogs = blogs.length > 0 ? blogs : [
+    {
+      id: 'default-1',
+      title: "From Mulanje, Malawi to the World — My Journey as a Developer & Creator",
+      slug: "from-mulanje-malawi-to-the-world",
+      excerpt: "Growing up in Dzenje, Mulanje, I discovered a passion for machines and software. Here is how I taught myself to code and build hardware.",
+      content: "My name is Peter Damiano, known across social platforms as Petediano (@petediano). Growing up in Dzenje, Mulanje, Malawi, I was always fascinated by how things worked. With limited resources, I taught myself programming, electronics soldering, and hardware engineering.\n\nToday, I build full-stack web applications, mobile apps in Kotlin, Flutter, and C++, and practical IoT hardware like the Automatic Flood Alert System. Alongside coding, I run challenge video projects and community games where people connect and win prizes.",
+      category: "Personal Journey",
+      tags: ["Malawi", "Petediano", "Developer Story", "Mulanje"],
+      readTime: "4 min read"
+    },
+    {
+      id: 'default-2',
+      title: "Building the 4-Way Automatic Flood Alert System",
+      slug: "automatic-flood-alert-system-malawi",
+      excerpt: "How water sensors, sirens, SMS alerts, and flashing LEDs protect Malawian communities from rising river waters during heavy storms.",
+      content: "Flooding is a major challenge during rainy seasons in many riverine communities. To protect families and livestock, I designed and built the Automatic Flood Alert System.\n\nThe system uses water level sensors connected to microcontroller units and a companion mobile app. When water crosses safety thresholds, it triggers an immediate local siren, bright flashing red LEDs, and automated SMS alerts to community leaders and residents.",
+      category: "Hardware & IoT",
+      tags: ["IoT", "Sensors", "Arduino", "Community Safety"],
+      readTime: "5 min read"
+    },
+    {
+      id: 'default-3',
+      title: "Why Next.js and Kotlin Are My Go-To Tools for Fast Full-Stack Apps",
+      slug: "why-nextjs-and-kotlin-are-my-go-to-tools",
+      excerpt: "Exploring why Next.js powers lightning-fast web apps like EducateMW and AI Tact while Kotlin drives robust Android experiences.",
+      content: "When building web applications that need to load instantly for students and professionals across Africa and globally, Next.js with React and Tailwind CSS provides unmatched speed and SEO performance.\n\nFor mobile devices, Kotlin and C++ enable high-performance offline audio playback and low-level sensor integration as seen in SoundBox. Choosing the right stack makes all the difference in delivering dependable digital tools.",
+      category: "Software Engineering",
+      tags: ["Next.js", "Kotlin", "React", "TypeScript"],
+      readTime: "3 min read"
+    }
+  ];
+
+  return (
+    <motion.section 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+      id="blog" 
+      className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
+    >
+      <div className="mb-10 sm:mb-14">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-3">
+          <BookOpen className="w-3.5 h-3.5 text-primary" />
+          Blog & Creator Insights
+        </div>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 text-white">
+          Stories, Tutorials & Updates
+        </h2>
+        <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-2xl">
+          Thoughts on software development, IoT hardware innovations, community challenge games, and my journey from Mulanje, Malawi.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {displayBlogs.map((blog) => (
+          <div
+            key={blog.id}
+            onClick={() => setSelectedBlog(blog)}
+            className="glass rounded-3xl p-6 sm:p-7 flex flex-col justify-between group hover:border-primary/50 transition-all duration-300 border border-white/10 cursor-pointer shadow-lg"
+          >
+            <div>
+              {blog.coverImage && (
+                <div className="w-full h-40 rounded-2xl overflow-hidden mb-4 relative border border-white/10">
+                  <Image src={blog.coverImage} alt={blog.title} fill className="object-cover" unoptimized />
+                </div>
+              )}
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <span className="text-[10px] font-mono px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 font-semibold">
+                  {blog.category}
+                </span>
+                <span className="text-[11px] font-mono text-gray-400 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-primary" /> {blog.readTime || '4 min read'}
+                </span>
+              </div>
+
+              <h3 className="text-lg sm:text-xl font-bold mb-2.5 text-white group-hover:text-primary transition-colors line-clamp-2">
+                {blog.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-300 leading-relaxed mb-6 line-clamp-3">
+                {blog.excerpt}
+              </p>
+            </div>
+
+            <div>
+              {blog.tags && blog.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {blog.tags.map((tag: string) => (
+                    <span key={tag} className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-gray-300 border border-white/10">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-primary font-medium group-hover:translate-x-1 transition-transform">
+                <span>Read Full Article</span>
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {selectedBlog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
+          <div className="bg-[#0b0b0e] border border-white/15 rounded-3xl p-6 sm:p-10 max-w-3xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto scrollbar-none relative">
+            <button
+              onClick={() => setSelectedBlog(null)}
+              className="absolute top-6 right-6 p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono px-3 py-1 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                  {selectedBlog.category}
+                </span>
+                <span className="text-xs font-mono text-gray-400 flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-primary" /> {selectedBlog.readTime}
+                </span>
+              </div>
+
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight leading-snug">
+                {selectedBlog.title}
+              </h2>
+
+              {selectedBlog.coverImage && (
+                <div className="w-full h-64 sm:h-80 rounded-2xl overflow-hidden relative border border-white/10 my-4">
+                  <Image src={selectedBlog.coverImage} alt={selectedBlog.title} fill className="object-cover" unoptimized />
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 pt-2 text-xs font-mono text-gray-400 border-b border-white/10 pb-4">
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 relative">
+                  <Image src="https://i.ibb.co/BHt5LWsW/20260516-210805.jpg" alt="Peter Damiano" fill className="object-cover" unoptimized />
+                </div>
+                <div>
+                  <span className="text-white font-semibold">Peter Damiano (Petediano)</span>
+                  <span className="block text-[10px] text-gray-500">Developer & Creator from Mulanje, Malawi</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 text-sm sm:text-base text-gray-300 leading-relaxed font-sans whitespace-pre-wrap">
+              {selectedBlog.content}
+            </div>
+
+            {selectedBlog.tags && selectedBlog.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
+                {selectedBlog.tags.map((tag: string) => (
+                  <span key={tag} className="text-xs font-mono px-3 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-6 border-t border-white/10">
+              <button
+                onClick={() => {
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('Article link copied to clipboard!');
+                  }
+                }}
+                className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-mono text-gray-300 border border-white/10 transition-colors flex items-center gap-2 cursor-pointer"
+              >
+                <Copy className="w-3.5 h-3.5" /> Share Article
+              </button>
+
+              <button
+                onClick={() => setSelectedBlog(null)}
+                className="px-6 py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white text-xs font-semibold shadow-lg cursor-pointer"
+              >
+                Close Article
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </motion.section>
+  );
+}
 
 export default function Home() {
   const [inquiryName, setInquiryName] = useState('');
@@ -706,46 +917,8 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* 5. My Story */}
-      <motion.section 
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        id="story" 
-        className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
-      >
-        <div className="glass rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-14 border border-white/10 relative overflow-hidden">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-5">
-              <Globe className="w-3.5 h-3.5 text-primary" />
-              My Story & Creative Journey
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-5 text-white">
-              From Mulanje, Malawi to the World — Peter Damiano (Petediano)
-            </h2>
-
-            <div className="space-y-4 text-base md:text-lg text-gray-300 leading-relaxed font-normal">
-              <p>
-                My name is <strong className="text-white">Peter Damiano</strong>, known across social platforms as <strong className="text-white">Petediano</strong> (@petediano). I grew up in Dzenje, Mulanje, in Malawi. From an early age, I loved discovering how machines, computers, and electronics work. Even with limited tools, I taught myself how to program, solder circuit boards, and write clean code from scratch.
-              </p>
-              <p>
-                As a developer, I build fast websites, mobile applications (Next.js, React, Flutter, Kotlin, C++), and emergency warning hardware devices like the 4-way Automatic Flood Alert System and EducateMW for students.
-              </p>
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 my-4 space-y-2">
-                <div className="flex items-center gap-2 text-white font-semibold text-base">
-                  <Trophy className="w-4 h-4 text-yellow-400" />
-                  <span>Challenge Creator & Community Games</span>
-                </div>
-                <p className="text-sm text-gray-300">
-                  Beyond coding, I also create fun, interactive challenge videos and mini-games where people in my community compete in friendly challenges for cash and prizes. I share these entertaining moments, tech builds, and behind-the-scenes clips on YouTube, TikTok, and social media under <strong className="text-white">@petediano</strong>.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.section>
+      {/* 5. Blog Section */}
+      <BlogSection />
 
       {/* 6. Social Platforms & Community Hub */}
       <SocialLinksSection />
