@@ -209,7 +209,7 @@ const DEFAULT_BLOGS: BlogItem[] = [
     tags: ["Malawi", "Petediano", "Developer Story", "Mulanje"],
     published: true,
     readTime: "4 min read",
-    views: 482
+    views: 0
   },
   {
     title: "Building the 4-Way Automatic Flood Alert System",
@@ -220,7 +220,7 @@ const DEFAULT_BLOGS: BlogItem[] = [
     tags: ["IoT", "Sensors", "Arduino", "Community Safety", "Flood Alert"],
     published: true,
     readTime: "5 min read",
-    views: 630
+    views: 0
   },
   {
     title: "Why Next.js and Kotlin Are My Go-To Tools for Fast Full-Stack Apps",
@@ -231,7 +231,7 @@ const DEFAULT_BLOGS: BlogItem[] = [
     tags: ["Next.js", "Kotlin", "React", "TypeScript", "Mobile Apps"],
     published: true,
     readTime: "3 min read",
-    views: 315
+    views: 0
   }
 ];
 
@@ -265,26 +265,12 @@ export default function AdminPage() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [aiTestStatus, setAiTestStatus] = useState<string | null>(null);
-  const [isTestingAi, setIsTestingAi] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const testGeminiAi = async () => {
-    setIsTestingAi(true);
-    setAiTestStatus(null);
-    try {
-      const res = await fetch('/api/gemini/blog-ai');
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setAiTestStatus(`Success! Model used: ${data.modelUsed}. Response: "${data.response}"`);
-      } else {
-        setAiTestStatus(`Error: ${data.error || 'Failed to connect to Gemini AI'}`);
-      }
-    } catch (err: any) {
-      setAiTestStatus(`Error: ${err.message}`);
-    } finally {
-      setIsTestingAi(false);
-    }
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => setIsMounted(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Filters & Search
   const [projectSearch, setProjectSearch] = useState('');
@@ -652,7 +638,7 @@ export default function AdminPage() {
         tags: ['Next.js', 'Malawi'],
         published: true,
         readTime: '4 min read',
-        views: 120
+        views: 0
       });
     }
     setBlogTagInput('');
@@ -682,7 +668,7 @@ export default function AdminPage() {
         await addDoc(ref, {
           ...blogForm,
           slug,
-          views: blogForm.views || Math.floor(Math.random() * 200) + 50,
+          views: blogForm.views ?? 0,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         });
@@ -787,7 +773,7 @@ export default function AdminPage() {
     const activeBlogs = blogs.length > 0 ? blogs : DEFAULT_BLOGS;
     return activeBlogs.map((b, i) => ({
       name: b.title.substring(0, 22) + '...',
-      views: b.views || (100 + i * 75),
+      views: b.views || 0,
       date: `Post #${i + 1}`
     }));
   }, [blogs]);
@@ -803,7 +789,7 @@ export default function AdminPage() {
   const unreadMessagesCount = inquiries.filter(i => !i.read).length;
   const totalBlogViews = useMemo(() => {
     const list = blogs.length > 0 ? blogs : DEFAULT_BLOGS;
-    return list.reduce((sum, b) => sum + (b.views || 150), 0);
+    return list.reduce((sum, b) => sum + (b.views || 0), 0);
   }, [blogs]);
 
   const formatDate = (timestamp: any) => {
@@ -1615,30 +1601,7 @@ export default function AdminPage() {
                 </p>
               </div>
 
-              <div className="bg-[#050505] p-5 rounded-2xl border border-white/10 space-y-4">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-primary shrink-0" />
-                    <div>
-                      <h3 className="text-sm font-bold text-white">Gemini AI Assistant & Environment Status</h3>
-                      <p className="text-xs text-gray-400">Uses gemini-3.5-flash-lite with fallback to gemini-3.1-flash-lite</p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={testGeminiAi}
-                    disabled={isTestingAi}
-                    className="px-4 py-2 rounded-xl bg-primary hover:bg-blue-600 text-white text-xs font-semibold shadow transition-all cursor-pointer disabled:opacity-55"
-                  >
-                    {isTestingAi ? 'Testing AI...' : 'Test Gemini AI Responds'}
-                  </button>
-                </div>
-                {aiTestStatus && (
-                  <div className={`p-3 rounded-xl text-xs font-mono border ${aiTestStatus.startsWith('Success') ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-red-500/10 border-red-500/30 text-red-300'}`}>
-                    {aiTestStatus}
-                  </div>
-                )}
-              </div>
+
 
               <form onSubmit={handleSaveSettings} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -2127,14 +2090,18 @@ export default function AdminPage() {
                 <label className="block text-xs sm:text-sm font-semibold text-gray-200 mb-1.5">
                   Full Article Content (WYSIWYG Editor — Bold, Italics, Lists, Paste Formatted Text) *
                 </label>
-                <div className="bg-white text-black rounded-2xl overflow-hidden border border-white/15">
-                  <ReactQuill
-                    theme="snow"
-                    value={blogForm.content}
-                    onChange={(content) => setBlogForm({ ...blogForm, content })}
-                    placeholder="Write or paste your formatted article here..."
-                    style={{ minHeight: '220px', backgroundColor: '#fff', color: '#000' }}
-                  />
+                <div className="bg-white text-black rounded-2xl overflow-hidden border border-white/15 min-h-[220px]">
+                  {isMounted ? (
+                    <ReactQuill
+                      theme="snow"
+                      value={blogForm.content}
+                      onChange={(content) => setBlogForm({ ...blogForm, content })}
+                      placeholder="Write or paste your formatted article here..."
+                      style={{ minHeight: '220px', backgroundColor: '#fff', color: '#000' }}
+                    />
+                  ) : (
+                    <div className="p-4 text-xs text-gray-500 font-mono">Loading editor...</div>
+                  )}
                 </div>
               </div>
 
