@@ -37,7 +37,7 @@ import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, doc, updateDoc, increment } from 'firebase/firestore';
 
 function BlogSection() {
   const [blogs, setBlogs] = useState<any[]>([]);
@@ -93,6 +93,19 @@ function BlogSection() {
     }
   ];
 
+  const handleSelectBlog = async (blog: any) => {
+    setSelectedBlog(blog);
+    if (blog.id && !blog.id.startsWith('default-')) {
+      try {
+        await updateDoc(doc(db, 'blogs', blog.id), {
+          views: increment(1)
+        });
+      } catch (err) {
+        console.warn('Failed to increment views:', err);
+      }
+    }
+  };
+
   const visibleBlogs = displayBlogs.slice(0, visibleCount);
 
   return (
@@ -121,7 +134,7 @@ function BlogSection() {
         {visibleBlogs.map((blog) => (
           <div
             key={blog.id}
-            onClick={() => setSelectedBlog(blog)}
+            onClick={() => handleSelectBlog(blog)}
             className="glass rounded-3xl p-6 sm:p-7 flex flex-col justify-between group hover:border-primary/50 transition-all duration-300 border border-white/10 cursor-pointer shadow-lg"
           >
             <div>
@@ -136,7 +149,7 @@ function BlogSection() {
                 </span>
                 <div className="flex items-center gap-3">
                   <span className="text-[11px] font-mono text-gray-400 flex items-center gap-1">
-                    <Eye className="w-3 h-3 text-primary" /> {blog.views || 145} views
+                    <Eye className="w-3 h-3 text-primary" /> {blog.views || 0} views
                   </span>
                   <span className="text-[11px] font-mono text-gray-400 flex items-center gap-1">
                     <Clock className="w-3 h-3 text-primary" /> {blog.readTime || '4 min read'}
@@ -263,6 +276,186 @@ function BlogSection() {
           </div>
         </div>
       )}
+    </motion.section>
+  );
+}
+
+const DEFAULT_PROJECTS = [
+  {
+    id: 'proj-1',
+    title: "Automatic Flood Alert System",
+    subtitle: "4-Way Early Warning & Community Safety App",
+    description: "An automated emergency warning system connected with a dedicated web and mobile app. It alerts communities when river levels rise using SMS alerts, loud app sound notifications, a real siren, and flashing red LEDs.",
+    category: "hardware",
+    liveUrl: "https://automatic-flood-alert-app.vercel.app/",
+    status: "Live",
+    tags: ["Mobile App", "SMS Alerts", "Loud Siren", "Red LEDs", "Water Sensor"],
+    order: 1
+  },
+  {
+    id: 'proj-2',
+    title: "EducateMW",
+    subtitle: "Free Past Exam Papers & Study Guides",
+    description: "A fast and free study website where Malawian primary and secondary students can easily search, view, and download national past examination papers and answer guides.",
+    category: "web",
+    liveUrl: "https://educatemw.vercel.app",
+    status: "Live",
+    tags: ["Next.js", "Fast Search", "Free Education", "Mobile Friendly"],
+    imageUrl: "https://i.ibb.co/b5JQ5fG5/image-2.jpg",
+    order: 2
+  },
+  {
+    id: 'proj-3',
+    title: "AI Tact",
+    subtitle: "Smart Message & Email Checker",
+    description: "A clean web app that helps you review important emails, proposals, and customer messages before sending, giving clear suggestions to make your words clear and polite.",
+    category: "ai",
+    liveUrl: "https://aitact.vercel.app",
+    status: "Live",
+    tags: ["Web App", "Message Review", "Fast & Helpful"],
+    order: 3
+  },
+  {
+    id: 'proj-4',
+    title: "Oto Creator",
+    subtitle: "Social Media Post Writer",
+    description: "A helpful tool that takes a single idea and writes ready-to-publish posts for Twitter/X, LinkedIn, TikTok, and Instagram, matching your preferred voice.",
+    category: "ai",
+    liveUrl: "https://otocreater.vercel.app",
+    status: "Live",
+    tags: ["Content Tool", "Social Media", "Time Saver"],
+    order: 4
+  },
+  {
+    id: 'proj-5',
+    title: "OINONE",
+    subtitle: "Online Business & Tech Guide",
+    description: "A blog and resource directory explaining legitimate ways to earn online, helpful digital tools, and practical side-hustle guides.",
+    category: "web",
+    liveUrl: "https://oinone.vercel.app",
+    status: "Live",
+    tags: ["Directory", "Tech Blog", "Online Income"],
+    order: 5
+  },
+  {
+    id: 'proj-6',
+    title: "SoundBox",
+    subtitle: "Fast Offline Android Music Player",
+    description: "A lightweight Android music app written in Kotlin and C++. It plays songs saved on your phone with clear sound, smooth background controls, and zero internet required.",
+    category: "mobile",
+    githubUrl: "https://github.com/PetedianoTech",
+    status: "Live",
+    tags: ["Android", "Kotlin", "C++", "Offline Audio"],
+    order: 6
+  }
+];
+
+function ProjectsSection() {
+  const [projects, setProjects] = useState<any[]>([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(query(collection(db, 'projects'), orderBy('order', 'asc')), (snapshot) => {
+      const list: any[] = [];
+      snapshot.forEach(docSnap => {
+        list.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      setProjects(list);
+    }, (err) => {
+      console.warn('Projects fetch fallback:', err.message);
+    });
+    return () => unsub();
+  }, []);
+
+  const displayProjects = projects.length > 0 ? projects : DEFAULT_PROJECTS;
+
+  return (
+    <motion.section 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+      id="systems" 
+      className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
+    >
+      <div className="mb-10 sm:mb-14">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-3">
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
+          Handcrafted Code & Hardware
+        </div>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 text-white">Featured Projects</h2>
+        <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-2xl">
+          Real software applications, helpful web tools, and smart electronic hardware systems I have designed, coded, and deployed.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {displayProjects.map((project) => (
+          <div key={project.id} className="glass rounded-3xl p-8 flex flex-col justify-between group hover:border-primary/40 transition-all duration-300 border border-white/10">
+            <div>
+              <div className="flex justify-between items-start mb-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 capitalize">
+                  <Code className="w-3.5 h-3.5 text-primary" />
+                  {project.category || 'web'} system
+                </div>
+                {project.liveUrl && (
+                  <a 
+                    href={project.liveUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    aria-label={`Open ${project.title} live site`} 
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-primary hover:text-white transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                )}
+                {project.githubUrl && !project.liveUrl && (
+                  <a 
+                    href={project.githubUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    aria-label={`Open ${project.title} GitHub repository`} 
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-primary hover:text-white transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                )}
+              </div>
+
+              {project.imageUrl && (
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-6 border border-white/10 group-hover:border-primary/30 transition-colors">
+                  <Image 
+                    src={project.imageUrl}
+                    alt={project.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    unoptimized
+                  />
+                </div>
+              )}
+
+              <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-primary transition-colors">
+                {project.title}
+              </h3>
+              {project.subtitle && (
+                <p className="text-primary text-xs font-mono mb-4">{project.subtitle}</p>
+              )}
+              <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                {project.description}
+              </p>
+            </div>
+            
+            {project.tags && project.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
+                {project.tags.map((tag: string) => (
+                  <span key={tag} className="text-xs font-mono px-3 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </motion.section>
   );
 }
@@ -423,336 +616,7 @@ export default function Home() {
       </section>
 
       {/* 2. Featured Projects Section */}
-      <motion.section 
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        id="systems" 
-        className="py-14 sm:py-20 md:py-24 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5"
-      >
-        <div className="mb-10 sm:mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300 mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            Handcrafted Code & Hardware
-          </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 text-white">Featured Projects</h2>
-          <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-2xl">
-            Real software applications, helpful web tools, and smart electronic hardware systems I have designed, coded, and deployed.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Project 01: Automatic Flood Alert System */}
-          <div className="glass rounded-3xl p-8 flex flex-col justify-between group hover:border-primary/40 transition-all duration-300 border border-white/10">
-            <div>
-              <div className="flex justify-between items-start mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-                  <Waves className="w-3.5 h-3.5 text-primary" />
-                  Hardware & Connected App
-                </div>
-                <a 
-                  href="https://automatic-flood-alert-app.vercel.app/" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  aria-label="Open Automatic Flood Alert App live site" 
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-primary hover:text-white transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-primary transition-colors">
-                Automatic Flood Alert System
-              </h3>
-              <p className="text-primary text-xs font-mono mb-4">4-Way Early Warning & Community Safety App</p>
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                An emergency flood warning system with a connected web and mobile app. It alerts communities when river levels rise using 4 automatic warnings: SMS text messages to phones, loud app sound notifications, a real physical siren, and bright flashing red LED lights.
-              </p>
-            </div>
-            
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
-              {['Mobile & Web App', 'SMS Alerts', 'Loud Siren Alarm', 'Red Warning LEDs', 'Automatic Sensor'].map(feature => (
-                <span key={feature} className="text-xs font-mono px-3 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
-                  {feature}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Project 02: EducateMW */}
-          <div className="glass rounded-3xl p-8 flex flex-col justify-between group hover:border-primary/40 transition-all duration-300 border border-white/10">
-            <div>
-              <div className="flex justify-between items-start mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-                  <BookOpen className="w-3.5 h-3.5 text-primary" />
-                  Education Platform
-                </div>
-                <a 
-                  href="https://educatemw.vercel.app" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  aria-label="Visit EducateMW website" 
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-primary hover:text-white transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-              
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-6 border border-white/10 group-hover:border-primary/30 transition-colors">
-                <Image 
-                  src="https://i.ibb.co/b5JQ5fG5/image-2.jpg"
-                  alt="EducateMW Past Exam Papers Platform"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  unoptimized
-                />
-              </div>
-
-              <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-primary transition-colors">
-                EducateMW
-              </h3>
-              <p className="text-primary text-xs font-mono mb-3">Free Past Exam Papers & Study Guides for Malawi</p>
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                A fast and easy-to-use study platform where students and teachers in Malawi can search, view, and download national past examination papers and answer guides for free.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
-              {['Next.js', 'Fast Search', 'Free Education', 'Mobile Friendly'].map(feature => (
-                <span key={feature} className="text-xs font-mono px-3 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
-                  {feature}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Project 03: AI Tact */}
-          <div className="glass rounded-3xl p-8 flex flex-col justify-between group hover:border-primary/40 transition-all duration-300 border border-white/10">
-            <div>
-              <div className="flex justify-between items-start mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-                  <CheckCircle className="w-3.5 h-3.5 text-primary" />
-                  Productivity Tool
-                </div>
-                <a 
-                  href="https://aitact.vercel.app" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  aria-label="Visit AI Tact website" 
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-primary hover:text-white transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-primary transition-colors">
-                AI Tact
-              </h3>
-              <p className="text-primary text-xs font-mono mb-3">Smart Message & Email Checker</p>
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                A clean web app that helps you review important emails, proposals, and customer messages before sending. It gives clear suggestions to make your communication clear, polite, and persuasive.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
-              {['Web App', 'Message Review', 'Fast & Helpful'].map(feature => (
-                <span key={feature} className="text-xs font-mono px-3 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
-                  {feature}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Project 04: Oto Creator */}
-          <div className="glass rounded-3xl p-8 flex flex-col justify-between group hover:border-primary/40 transition-all duration-300 border border-white/10">
-            <div>
-              <div className="flex justify-between items-start mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-                  <Bot className="w-3.5 h-3.5 text-primary" />
-                  Content Creator Tool
-                </div>
-                <a 
-                  href="https://otocreater.vercel.app" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  aria-label="Visit Oto Creator website" 
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-primary hover:text-white transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-primary transition-colors">
-                Oto Creator
-              </h3>
-              <p className="text-primary text-xs font-mono mb-3">Social Media Post Writer</p>
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                A helpful tool that takes a single idea and writes ready-to-publish posts for Twitter/X, LinkedIn, TikTok, and Instagram, matching your preferred voice and format.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
-              {['Social Media', 'Content Formatting', 'Time Saver'].map(feature => (
-                <span key={feature} className="text-xs font-mono px-3 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
-                  {feature}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Project 05: OINONE */}
-          <div className="glass rounded-3xl p-8 flex flex-col justify-between group hover:border-primary/40 transition-all duration-300 border border-white/10">
-            <div>
-              <div className="flex justify-between items-start mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-                  <Globe className="w-3.5 h-3.5 text-primary" />
-                  Blog & Resource Directory
-                </div>
-                <a 
-                  href="https://oinone.vercel.app" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  aria-label="Visit OINONE website" 
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-primary hover:text-white transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-primary transition-colors">
-                OINONE
-              </h3>
-              <p className="text-primary text-xs font-mono mb-3">Online Business & Tech Guide</p>
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                A blog and resource directory explaining legitimate ways to earn online, helpful digital tools, and practical side-hustle guides for beginners and creators.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
-              {['Resource Directory', 'Tech Blog', 'Online Earning'].map(feature => (
-                <span key={feature} className="text-xs font-mono px-3 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
-                  {feature}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Project 06: SoundBox */}
-          <div className="glass rounded-3xl p-8 flex flex-col justify-between group hover:border-primary/40 transition-all duration-300 border border-white/10">
-            <div>
-              <div className="flex justify-between items-start mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-                  <Music className="w-3.5 h-3.5 text-primary" />
-                  Android Music App
-                </div>
-                <a 
-                  href="https://github.com/PetedianoTech" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  aria-label="Visit SoundBox Android Music Player on GitHub" 
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-primary hover:text-white transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-primary transition-colors">
-                SoundBox
-              </h3>
-              <p className="text-primary text-xs font-mono mb-3">Fast Offline Android Music Player</p>
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                A lightweight Android music app written in Kotlin and C++. It plays songs saved on your phone with clear sound, smooth background controls, and zero internet required. 100% open-source.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
-              {['Android App', 'Kotlin', 'C++', 'Offline Audio'].map(feature => (
-                <span key={feature} className="text-xs font-mono px-3 py-1 rounded-lg bg-white/5 text-gray-300 border border-white/10">
-                  {feature}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Project 07: Hardware & STEM Exhibitions */}
-          <div className="glass rounded-3xl p-8 flex flex-col justify-between group hover:border-primary/30 transition-all duration-300 border border-white/10 md:col-span-2 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-purple-500/5 -z-10" />
-            
-            <div>
-              <div className="flex justify-between items-start mb-6 gap-4 flex-wrap">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-                  <Cpu className="w-3.5 h-3.5 text-primary" />
-                  Hands-on Electronics & Exhibitions
-                </div>
-                <div className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  STEM & Innovation Fair Winner
-                </div>
-              </div>
-              
-              <h3 className="text-2xl md:text-3xl font-bold mb-3 text-white">
-                Real Electronics & Working Inventions
-              </h3>
-              <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-8 max-w-3xl">
-                I do not just write computer software — I love designing and building physical electronics with wires, sensors, and circuit boards. At BICC during the COMSTEDA22 STEM program and school exhibitions, I showcased working hardware alongside fellow innovators like Innocent Mandili.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {/* Exhibit 1 */}
-              <div className="bg-white/5 border border-white/10 p-5 rounded-2xl flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-start mb-3">
-                    <Waves className="w-6 h-6 text-primary" />
-                    <a 
-                      href="https://automatic-flood-alert-app.vercel.app/" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-[11px] font-mono text-primary hover:underline bg-primary/10 px-2 py-0.5 rounded border border-primary/20 flex items-center gap-1"
-                    >
-                      App Demo <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                  <h4 className="font-bold text-sm mb-2 text-white">Automatic Flood Alert System</h4>
-                  <p className="text-xs text-gray-300 leading-relaxed mb-4">
-                    Water sensor connected to a phone app that triggers loud sirens, SMS text alerts, and bright red flashing lights to protect families during storms.
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-white/10 flex items-center gap-2 text-[10px] text-gray-400 font-mono">
-                  <Calendar className="w-3 h-3 flex-shrink-0 text-primary" />
-                  <span>Dzenje Secondary School</span>
-                </div>
-              </div>
-
-              {/* Exhibit 2 */}
-              <div className="bg-white/5 border border-white/10 p-5 rounded-2xl flex flex-col justify-between">
-                <div>
-                  <BatteryCharging className="w-6 h-6 text-emerald-400 mb-3" />
-                  <h4 className="font-bold text-sm mb-2 text-white">Battery-Powered Gym</h4>
-                  <p className="text-xs text-gray-300 leading-relaxed mb-4">
-                    Clean-energy gym equipment that captures human exercise movement and stores electricity in rechargeable battery packs.
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-white/10 flex items-center gap-2 text-[10px] text-gray-400 font-mono">
-                  <Calendar className="w-3 h-3 flex-shrink-0 text-emerald-400" />
-                  <span>BICC & Mloza Secondary</span>
-                </div>
-              </div>
-
-              {/* Exhibit 3 */}
-              <div className="bg-white/5 border border-white/10 p-5 rounded-2xl flex flex-col justify-between">
-                <div>
-                  <Bot className="w-6 h-6 text-purple-400 mb-3" />
-                  <h4 className="font-bold text-sm mb-2 text-white">Robotic Toy Car</h4>
-                  <p className="text-xs text-gray-300 leading-relaxed mb-4">
-                    Custom electronic motorized vehicle built with handmade circuits and switches. Received an official Certificate of Achievement.
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-white/10 flex items-center gap-2 text-[10px] text-gray-400 font-mono">
-                  <Calendar className="w-3 h-3 flex-shrink-0 text-purple-400" />
-                  <span>Mulanje Park & Art Week</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.section>
+      <ProjectsSection />
 
       {/* 3. Skills & Technologies Section */}
       <motion.section 
