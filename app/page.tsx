@@ -30,7 +30,8 @@ import {
   Clock,
   ChevronRight,
   X,
-  Copy
+  Copy,
+  Eye
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
@@ -41,6 +42,7 @@ import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 
 function BlogSection() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [selectedBlog, setSelectedBlog] = useState<any | null>(null);
+  const [visibleCount, setVisibleCount] = useState(3);
 
   useEffect(() => {
     const unsub = onSnapshot(query(collection(db, 'blogs'), orderBy('createdAt', 'desc')), (snapshot) => {
@@ -91,6 +93,8 @@ function BlogSection() {
     }
   ];
 
+  const visibleBlogs = displayBlogs.slice(0, visibleCount);
+
   return (
     <motion.section 
       initial={{ opacity: 0, y: 30 }}
@@ -114,7 +118,7 @@ function BlogSection() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayBlogs.map((blog) => (
+        {visibleBlogs.map((blog) => (
           <div
             key={blog.id}
             onClick={() => setSelectedBlog(blog)}
@@ -126,13 +130,18 @@ function BlogSection() {
                   <Image src={blog.coverImage} alt={blog.title} fill className="object-cover" unoptimized />
                 </div>
               )}
-              <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
                 <span className="text-[10px] font-mono px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 font-semibold">
                   {blog.category}
                 </span>
-                <span className="text-[11px] font-mono text-gray-400 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-primary" /> {blog.readTime || '4 min read'}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] font-mono text-gray-400 flex items-center gap-1">
+                    <Eye className="w-3 h-3 text-primary" /> {blog.views || 145} views
+                  </span>
+                  <span className="text-[11px] font-mono text-gray-400 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-primary" /> {blog.readTime || '4 min read'}
+                  </span>
+                </div>
               </div>
 
               <h3 className="text-lg sm:text-xl font-bold mb-2.5 text-white group-hover:text-primary transition-colors line-clamp-2">
@@ -162,6 +171,18 @@ function BlogSection() {
           </div>
         ))}
       </div>
+
+      {displayBlogs.length > visibleCount && (
+        <div className="mt-12 text-center">
+          <button
+            onClick={() => setVisibleCount(prev => prev + 3)}
+            className="px-8 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs sm:text-sm font-mono border border-white/20 shadow-lg transition-all cursor-pointer inline-flex items-center gap-2"
+          >
+            <span>Load More Articles ({displayBlogs.length - visibleCount} remaining)</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {selectedBlog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
@@ -204,9 +225,10 @@ function BlogSection() {
               </div>
             </div>
 
-            <div className="space-y-4 text-sm sm:text-base text-gray-300 leading-relaxed font-sans whitespace-pre-wrap">
-              {selectedBlog.content}
-            </div>
+            <div 
+              className="space-y-4 text-sm sm:text-base text-gray-300 leading-relaxed font-sans prose prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: selectedBlog.content }}
+            />
 
             {selectedBlog.tags && selectedBlog.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">

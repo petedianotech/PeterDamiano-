@@ -26,14 +26,15 @@
       "type": "object",
       "properties": {
         "title": { "type": "string", "description": "Blog post title" },
-        "slug": { "type": "string", "description": "URL-friendly slug" },
+        "slug": { "type": "string", "description": "URL-friendly slug (unique)" },
         "excerpt": { "type": "string", "description": "Short summary" },
-        "content": { "type": "string", "description": "Full article markdown or text content" },
+        "content": { "type": "string", "description": "Full HTML / WYSIWYG article content" },
         "coverImage": { "type": "string", "description": "Cover image URL from ImgBB" },
         "category": { "type": "string", "description": "Blog category" },
         "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags" },
         "published": { "type": "boolean", "description": "Publication status" },
         "readTime": { "type": "string", "description": "Estimated read time e.g. 4 min read" },
+        "views": { "number": "number", "description": "Reader view count" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
